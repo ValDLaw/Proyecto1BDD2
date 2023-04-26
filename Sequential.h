@@ -11,16 +11,37 @@ const int K = 3;
 template <class Registro>
 class SequentialFile{
 private:
-    string datafile;
-    string auxfile;
-    int accessMemSec;
     struct SequentialBlock{
         long next;
         char file; //D or A
+        bool deleted;
+        Registro record;
     };
+    string datafile;
+    string auxfile;
+    int accessMemSec;
+    SequentialBlock header;
+
+    SequentialFile(){
+        SequentialBlock header.next = -1;
+        SequentialBlock header.file = 'D';
+    }
 
     vector<Registro> search(T key);
     vector<Registro> rangeSearch(T begin-key, T end-key);
-    bool add(Registro registro);
+    
+    bool add(Registro registro){
+        SequentialBlock temp;
+        if header.file = 'D'{
+            fstream datafile(datafile, ios::ate);
+            datafile.seekg(header.next);
+            datafile.read((char*)&temp, sizeof(SequentialBlock));
+            
+        }
+        
+
+
+
+    }
     bool remove(T key);
 };
