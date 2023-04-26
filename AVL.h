@@ -4,12 +4,15 @@
 
 #ifndef PROYECTO1BDD2_AVL_H
 #define PROYECTO1BDD2_AVL_H
-
 #include <iostream>
 #include <algorithm>
+#include <cstring>
 #include <fstream>
 
 using namespace std;
+
+/// SINO FUNCIONA
+// CAMBIAR STOI con ATOI
 
 
 struct Record
@@ -52,7 +55,7 @@ private:
         long right;
         int height=0;
         long pos = 0;
-
+        bool del = false;
         NodeBT() {
             left = right = -1;
             height = 0;
@@ -109,18 +112,14 @@ public:
     void insert(fstream &inFile, long NodoActual, long NuevoNodo ,long posParent ,Record &record ){
         if(NodoActual == -1 ){
             NodeBT temp1 = getNode( inFile ,posParent );
-            if(atoi(record.cod) < atoi(temp1.data.cod)){
-                temp1.left = NuevoNodo;
-            }else{
-                temp1.right = NuevoNodo;
-            }
+            (stoi(record.cod) < stoi(temp1.data.cod) ? temp1.left : temp1.right) = NuevoNodo;
             inFile.seekp(posParent);
             inFile.write((char*)& temp1, sizeof (temp1));
             return;
         }
         else {
             NodeBT temp = getNode(inFile ,NodoActual);
-            if(atoi(record.cod) < atoi(temp.data.cod)){
+            if(stoi(record.cod) < stoi(temp.data.cod)){
                 insert(inFile, temp.left , NuevoNodo, NodoActual, record);
             }else{
                 insert(inFile, temp.right, NuevoNodo, NodoActual , record);
@@ -145,7 +144,7 @@ public:
     }
 
     void change(fstream& File,  long posNode, long right_node, bool flag, bool doubleRotate){
-
+        // true if is leftRotate
         NodeBT h2 = getNode(File, right_node);
         if(this->root == posNode){
             NodeBT h1 = getNode(File, root);
@@ -251,6 +250,92 @@ public:
         }
     }
 
+
+    void remove(string value){
+        ofstream (filename, std::ofstream::app | std::fstream::binary);
+        fstream inFile(filename,  std::ios::binary |  ios::in | ios::out);
+        if(!inFile.is_open()){
+            cout << "NO ABIERTO" << endl;
+        }
+        inFile.seekg(0, std::ios_base::beg);
+        remove(inFile, root, root , value);
+    }
+
+    void remove(fstream& File, long NodoActual, long Parent, string value) {
+        NodeBT node = getNode(File, NodoActual);
+        if(NodoActual == -1){
+            return;
+        }
+        else if(stoi(value) < stoi(node.data.cod) ){
+
+            remove(File, node.left , NodoActual , value);
+            updateHeight(File, NodoActual);
+            balance(File, NodoActual);
+
+        }else if(stoi(value) > stoi(node.data.cod) ){
+
+            remove(File, node.right , NodoActual, value);
+            updateHeight(File, NodoActual);
+            balance(File, NodoActual);
+        }
+        else{
+            NodeBT nodeParent = getNode(File, Parent );
+            if(node.left == -1 && node.right == -1){
+                if(NodoActual == nodeParent.left){
+                    nodeParent.left = -1;
+                } else {
+                    nodeParent.right = -1;
+                }
+                node.del = true;
+                File.seekg(Parent);
+                File.write((char*)&nodeParent, sizeof(nodeParent));
+                File.seekg(NodoActual);
+                File.write((char*)&node, sizeof(node));
+
+            }else if(node.left == -1){
+                NodeBT nodoHijo = getNode(File, node.right);
+                node = nodoHijo;
+                node.pos = NodoActual;
+                nodoHijo.del = true;
+//                nodeParent.height -= 1;
+                File.seekg(NodoActual);
+                File.write((char*)&node, sizeof(node));
+                File.seekp(nodoHijo.pos);
+                File.write((char*)&nodoHijo, sizeof(nodoHijo));
+            }else if(node.right == -1){
+                NodeBT nodoHijo = getNode(File, node.left);
+                node = nodoHijo;
+                node.pos = NodoActual;
+                nodoHijo.del = true;
+//                nodeParent.height -= 1;
+                File.seekg(NodoActual);
+                File.write((char*)&node, sizeof(node));
+                File.seekp(nodoHijo.pos);
+                File.write((char*)&nodoHijo, sizeof(nodoHijo));
+            }else{
+                string temp = maxValue(File,node.left);
+                temp.resize(5);
+                char dat[5];
+                strcpy(dat, temp.c_str());
+                copy_n(dat,5,node.data.cod);
+                File.seekp(NodoActual);
+                File.write((char*)& node, sizeof(node) );
+                remove(File, node.left, NodoActual, dat);
+            }
+        }
+    }
+
+    string maxValue(fstream &File, long NodoActual ){
+        NodeBT nodo = getNode(File, NodoActual);
+        if(NodoActual == -1){
+            throw invalid_argument("Esta Vacio");
+        }else if(nodo.right == -1){
+            return nodo.data.cod;
+        }else{
+            return maxValue(File, nodo.right);
+        }
+    }
+
     void scanAll(){
         fstream inFile(filename, std::ios::in  | std::ios::binary);
         inFile.seekg(0);
@@ -259,10 +344,12 @@ public:
             NodeBT a1{};
             inFile.read( (char *)& a1, sizeof (a1));
             inFile.clear();
-            cout << "POS " << a1.pos;
-            cout << a1.data ;
-            cout << " Pos Left : " << a1.left  << "  Pos right : "  <<  " " << a1.right  << " Heigh : " << a1.height;
-            cout << endl << endl;
+            if(!a1.del) {
+                cout << "POS " << a1.pos;
+                cout << a1.data;
+                cout << " Pos Left : " << a1.left << "  Pos right : " << " " << a1.right << " Heigh : " << a1.height;
+                cout << endl << endl;
+            }
         }
         inFile.close();
     }
@@ -276,7 +363,7 @@ public:
         return result;
     }
 
-    static Record search(std::ifstream &file, long record_pos, string value)
+    static Record search(std::ifstream &file, long record_pos,string value)
     {
         if (record_pos == -1)
             throw "Archivo Vacio";
@@ -284,9 +371,9 @@ public:
             NodeBT temp;
             file.seekg(record_pos);
             file.read((char*)&temp, sizeof(NodeBT));
-            if (value < temp.data.cod)
+            if ( stoi(value) < stoi(temp.data.cod))
                 return search(file, temp.left, value);
-            else if (value > temp.data.cod)
+            else if (stoi(value) > stoi(temp.data.cod))
                 return search(file, temp.right, value);
             else
                 return temp.data;
@@ -297,7 +384,6 @@ public:
 
 void writeFile(string filename){
     BSTFile file(filename);
-    Record record {};
 
     file.insert({"5","Julia",7});
     file.insert({"6","Azul",2});
@@ -311,14 +397,31 @@ void writeFile(string filename){
     file.insert({"15","Arturo",3});
     file.insert({"33","Andres",6});
 
+
+
 }
 
 void readFile(string filename)
 {
     BSTFile file(filename);
-    cout<<"-------- show data --- \n";
+    cout<< endl << "--------SHOW DATA------------\n"<<endl;
     file.scanAll();
     cout << endl <<"--------SEARCH------------\n " << endl;
+    Record record = file.search("15");
+    cout  << record << endl;
+    cout << endl <<"--------REMOVE6------------\n " << endl;
+    file.remove("6");
+    file.scanAll();
+    cout << endl <<"--------REMOVE1------------\n " << endl;
+    file.remove("1");
+    file.scanAll();
+    cout << endl <<"--------REMOVE15------------\n " << endl;
+    file.remove("15");
+    file.scanAll();
+    cout << endl <<"--------REMOVE4------------\n " << endl;
+    file.remove("4");
+    file.scanAll();
+
 }
 
 int main(){
@@ -326,7 +429,6 @@ int main(){
     writeFile("data.dat");
     readFile("data.dat");
 }
-
 
 
 #endif //PROYECTO1BDD2_AVL_H
