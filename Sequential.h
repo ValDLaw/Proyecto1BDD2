@@ -56,20 +56,19 @@ private:
                 aux.read((char*)&next, sizeof(SequentialBlock));
             }
 
-            if (next.record.key == registro.key){
+            if (next.record.key == registro.key){//Si se encuentra el key
                 data.close();
                 aux.close();
                 return false; //Ya existe, no se puede agregar
             }
-            else if (next.record.key > registro.key){
+            else if (next.record.key > registro.key){//si el siguiente es mayor, stop
                 break;
             }
-            else if (next.record.key < registro.key){
+            else if (next.record.key < registro.key){//si el siguiente es menor, avanzamos
                 current_pos = current.next;
                 current_file = current.next_file;
                 current = next;
             }
-            //Si el siguiente es menor, sólo continúa
         }
 
         //"reemplazamos" el next con el nuevo bloque
@@ -104,10 +103,13 @@ private:
             aux.seekg(current_pos, ios::begin);
             aux.write((char*)&current, sizeof(SequentialBlock));
         }
-
         data.close();
         aux.close();
+
+        if (){
+            
+        }
     }
-    
+
     bool remove(T key);
 };
