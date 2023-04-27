@@ -19,6 +19,7 @@ private:
     string datafile;    
     string auxfile;
     int accessMemSec;
+    int auxCount;
     int deletedCount;
 
     SequentialFile(){
@@ -34,7 +35,7 @@ private:
     vector<Registro> search(T key);
     vector<Registro> rangeSearch(T begin-key, T end-key);
     
-    void rebuild();
+    void rebuild(); //auxCount = 0; deletedCount = 0;
 
     bool add(Registro registro){
         fstream aux(auxfile, ios::in | ios::out | ios::binary);
@@ -102,13 +103,16 @@ private:
         else if (current_file == 'A'){
             aux.seekg(current_pos, ios::begin);
             aux.write((char*)&current, sizeof(SequentialBlock));
+            auxCount++;
         }
         data.close();
         aux.close();
-
-        if (){
-            
+        
+        if (auxCount == K){
+            rebuild();
         }
+
+        return true;
     }
 
     bool remove(T key);
