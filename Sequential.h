@@ -1,3 +1,5 @@
+#ifndef PROYECTO1BDD2_SEQ_H
+#define PROYECTO1BDD2_SEQ_H
 #include <iostream>
 #include <algorithm>
 #include <cstring>
@@ -8,7 +10,17 @@
 using namespace std;
 const int K = 3;
 
-template <class Registro>
+struct Registro{
+    int key;
+
+    Registro() = default;
+
+    Registro(int key){
+        this->key = key;
+    };
+};
+
+template <typename T>
 class SequentialFile{
 private:
     struct SequentialBlock{
@@ -18,25 +30,35 @@ private:
     };
     string datafile;    
     string auxfile;
-    int accessMemSec;
-    int auxCount;
-    int deletedCount;
+    int accessMemSec = 0;
+    int auxCount = 0;
+    int deletedCount = 0;
 
-    SequentialFile(){
+public:
+    SequentialFile(string _datafile, string _auxfile){
+        this->datafile = _datafile;
+        this->auxfile = _auxfile;
+
         SequentialBlock header;
         header.next = -1;
         header.next_file = 'D';
         header.record = Registro();
-        fstream data(datafile, ios::in | ios::out | ios::binary);
+        fstream data(this->datafile, ios::app);
+        fstream aux(this->auxfile, ios::app);
         data.write((char*)&header, sizeof(SequentialBlock));
+        
         data.close();
+        aux.close();
     }
 
+    
     vector<Registro> search(T key);
-    vector<Registro> rangeSearch(T begin-key, T end-key);
+    
+
+    vector<Registro> rangeSearch(T begin_key, T end_key);
     
     void rebuild(); //auxCount = 0; deletedCount = 0;
-
+    
     bool add(Registro registro){
         fstream aux(auxfile, ios::in | ios::out | ios::binary);
         fstream data(datafile, ios::in | ios::out | ios::binary);
@@ -78,7 +100,6 @@ private:
         block.next = current.next; 
         block.next_file = current.next_file; //reemplazamos al next
         block.record = registro;
-        block.deleted = false;
         
         //if current.next = -1 -> último
         if (current.next == -1){
@@ -97,11 +118,11 @@ private:
         }
 
         if (current_file == 'D'){
-            data.seekg(current_pos, ios::begin);
+            data.seekg(current_pos, ios::beg);
             data.write((char*)&current, sizeof(SequentialBlock));
         }
         else if (current_file == 'A'){
-            aux.seekg(current_pos, ios::begin);
+            aux.seekg(current_pos, ios::beg);
             aux.write((char*)&current, sizeof(SequentialBlock));
             auxCount++;
         }
@@ -117,3 +138,15 @@ private:
 
     bool remove(T key);
 };
+
+
+int main(){
+    string data = "../data.txt";
+    string aux = "../aux.txt";
+
+    SequentialFile<int> seqFile(data, aux);
+    seqFile.add({1});
+};
+
+
+#endif //PROYECTO1BDD2_SEQ_H
