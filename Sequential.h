@@ -4,8 +4,8 @@
 #include <algorithm>
 #include <cstring>
 #include <fstream>
-#include "Records/Product.h"
-#include "Records/Payment.h"
+#include <utility>
+#include <vector>
 
 using namespace std;
 const int K = 3;
@@ -28,48 +28,101 @@ private:
         char next_file; //D or A
         Registro record;
     };
-    string datafile;    
+    string datafile;
     string auxfile;
     int accessMemSec = 0;
     int auxCount = 0;
     int deletedCount = 0;
 
 public:
-    SequentialFile(string _datafile, string _auxfile){
-        this->datafile = _datafile;
-        this->auxfile = _auxfile;
+    SequentialFile(string d, string a){
+        datafile = move(d);
+        auxfile = move(a);
 
         SequentialBlock header;
         header.next = -1;
         header.next_file = 'D';
         header.record = Registro();
-        fstream data(this->datafile, ios::app);
-        fstream aux(this->auxfile, ios::app);
-        data.write((char*)&header, sizeof(SequentialBlock));
-        
-        data.close();
+        fstream aux(auxfile, ios::app);
         aux.close();
+        fstream data(datafile, ios::app);
+        data.write((char*)&header, sizeof(SequentialBlock));
+        data.close();
     }
 
-    
     vector<Registro> search(T key);
-    
-
     vector<Registro> rangeSearch(T begin_key, T end_key);
-    
+
     void rebuild(); //auxCount = 0; deletedCount = 0;
-    
-    bool add(Registro registro){
+
+
+    void read(){
         fstream aux(auxfile, ios::in | ios::out | ios::binary);
         fstream data(datafile, ios::in | ios::out | ios::binary);
+
+        SequentialBlock block;
+        data.seekg(0, ios::beg);
+        data.read((char*)&block, sizeof(SequentialBlock));
+        int pos_actual = 0;
+        char current_file = 'D';
+        int pos_block;
+
+        cout << "POS|" << "KEY|" << "NEXT" << endl;
+
+        while (block.next != -1){
+            if (current_file == 'D'){
+                data.seekg(pos_actual);
+                pos_block = data.tellg()/sizeof(SequentialBlock);
+            } else{
+                aux.seekg(pos_actual);
+                pos_block = aux.tellg()/sizeof(SequentialBlock);
+            }
+
+            cout << pos_block << current_file << " | ";
+            cout << block.record.key << " | ";
+            cout << block.next/sizeof(SequentialBlock) << block.next_file << endl;
+
+            if (block.next_file == 'A'){
+                pos_actual = block.next;
+                aux.seekg(block.next, ios::beg);
+                aux.read((char*)&block, sizeof(SequentialBlock));
+                current_file = 'A';
+            } else {
+                pos_actual = block.next;
+                data.seekg(block.next, ios::beg);
+                data.read((char*)&block, sizeof(SequentialBlock));
+                current_file = 'D';
+            }
+        }
+
+        if (current_file == 'D'){
+            data.seekg(pos_actual);
+            pos_block = data.tellg()/sizeof(SequentialBlock);
+        } else{
+            aux.seekg(pos_actual);
+            pos_block = aux.tellg()/sizeof(SequentialBlock);
+        }
+
+        cout << pos_block << current_file << " | ";
+        cout << block.record.key << " | ";
+        cout << block.next << block.next_file << endl;
+
+        aux.close();
+        data.close();
+    };
+
+    bool add(Registro registro){
+        fstream aux(auxfile, ios::in | ios::out | ios::binary);
+        fstream data(datafile, ios::in | ios::out | ios::binary | ios::ate);
         long current_pos = 0;
         char current_file = 'D';
         SequentialBlock current;
         data.seekg(0, ios::beg);
         data.read((char*)&current, sizeof(SequentialBlock)); //current = header
-        
+
         SequentialBlock next;
         while(current.next != -1){
+            cout << current_pos/sizeof(SequentialBlock) << current_file << " ";
             if (current.next_file == 'D'){
                 data.seekg(current.next, ios::beg);
                 data.read((char*)&next, sizeof(SequentialBlock));
@@ -78,6 +131,8 @@ public:
                 aux.seekg(current.next, ios::beg);
                 aux.read((char*)&next, sizeof(SequentialBlock));
             }
+
+            cout << current.record.key << " " << (current.next)/sizeof(SequentialBlock) << current.next_file << endl;
 
             if (next.record.key == registro.key){//Si se encuentra el key
                 data.close();
@@ -97,10 +152,10 @@ public:
         //"reemplazamos" el next con el nuevo bloque
         SequentialBlock block;
         long pos;
-        block.next = current.next; 
+        block.next = current.next;
         block.next_file = current.next_file; //reemplazamos al next
         block.record = registro;
-        
+
         //if current.next = -1 -> último
         if (current.next == -1){
             data.seekg(0, ios::end);
@@ -111,7 +166,7 @@ public:
         }
         else{
             aux.seekg(0, ios::end);
-            pos = data.tellg();
+            pos = aux.tellg();
             aux.write((char*)&block, sizeof(SequentialBlock));
             current.next = pos;
             current.next_file = 'A';
@@ -128,25 +183,14 @@ public:
         }
         data.close();
         aux.close();
-        
-        if (auxCount == K){
-            rebuild();
-        }
 
+        /*if (auxCount == K){
+            rebuild();
+        }*/
         return true;
     }
 
     bool remove(T key);
 };
-
-
-int main(){
-    string data = "../data.txt";
-    string aux = "../aux.txt";
-
-    SequentialFile<int> seqFile(data, aux);
-    seqFile.add({1});
-};
-
 
 #endif //PROYECTO1BDD2_SEQ_H
