@@ -12,7 +12,7 @@ template <class Registro>
 class SequentialFile{
 private:
     struct SequentialBlock{
-        long next; //pos*sizeof(SequentialBlock) = pos_física
+        long next; //pos*sizeof(SequentialBlock) = pos_física del siguiente
         char next_file; //D or A
         Registro record;
     };
@@ -23,8 +23,9 @@ private:
 
     SequentialFile(){
         SequentialBlock header;
-        SequentialBlock header.next = -1;
-        SequentialBlock header.next_file = 'D';
+        header.next = -1;
+        header.next_file = 'D';
+        header.record = Registro();
         fstream data(datafile, ios::in | ios::out | ios::binary);
         data.write((char*)&header, sizeof(SequentialBlock));
         data.close();
@@ -38,60 +39,75 @@ private:
     bool add(Registro registro){
         fstream aux(auxfile, ios::in | ios::out | ios::binary);
         fstream data(datafile, ios::in | ios::out | ios::binary);
-        SequentialBlock temp;
-        long pos = 0;
+        long current_pos = 0;
+        char current_file = 'D';
+        SequentialBlock current;
         data.seekg(0, ios::beg);
-        data.read((char*)&temp, sizeof(SequentialBlock));
+        data.read((char*)&current, sizeof(SequentialBlock)); //current = header
         
-        //Buscar el bloque donde se debe insertar
-        SequentialBlock prev = temp;
-        while(temp.next != -1){
-            //Leer el siguiente bloque
-            if (temp.next_file == 'D'){
-                data.seekg(temp.next, ios::beg);
-                data.read((char*)&temp, sizeof(SequentialBlock));
+        SequentialBlock next;
+        while(current.next != -1){
+            if (current.next_file == 'D'){
+                data.seekg(current.next, ios::beg);
+                data.read((char*)&next, sizeof(SequentialBlock));
             }
-            else if (temp.next_file == 'A'){
-                aux.seekg(temp.next, ios::beg);
-                aux.read((char*)&temp, sizeof(SequentialBlock));
+            else if (current.next_file == 'A'){
+                aux.seekg(current.next, ios::beg);
+                aux.read((char*)&next, sizeof(SequentialBlock));
             }
 
-            if (temp.record.key == registro.key){ //si se encuentra, add = false
+            if (next.record.key == registro.key){
                 data.close();
                 aux.close();
-                return false;
+                return false; //Ya existe, no se puede agregar
             }
-            else if (temp.record.key > registro.key){ //si el key es mayor, insertar en el bloque anterior
-                temp = prev;
+            else if (next.record.key > registro.key){
                 break;
             }
-            else{ //ir al siguiente bloque
-                prev = temp;
-                temp = temp.next;
+            else if (next.record.key < registro.key){
+                current_pos = current.next;
+                current_file = current.next_file;
+                current = next;
             }
+            //Si el siguiente es menor, sólo continúa
         }
 
-        //Write block
+        //"reemplazamos" el next con el nuevo bloque
         SequentialBlock block;
-        block->next = temp->next;
-        block->next_file = temp->next_file;
-        block->record = registro;
-        block->deleted = false;
-       
-        //En caso que sea el último key de todos los files
-        if (temp->next_file == 'D' and temp->next == -1){
+        long pos;
+        block.next = current.next; 
+        block.next_file = current.next_file; //reemplazamos al next
+        block.record = registro;
+        block.deleted = false;
+        
+        //if current.next = -1 -> último
+        if (current.next == -1){
             data.seekg(0, ios::end);
-            temp->next = data.tellg();
-            temp->next_file = 'D'
+            pos = data.tellg();
             data.write((char*)&block, sizeof(SequentialBlock));
+            current.next = pos;
+            current.next_file = 'D';
         }
-        //Cualquier otra posición
-        else if{
-            aux.seekg(temp->next, ios::end);
-            temp->next = data.tellg();
-            temp->next_file = 'A'
+        else{
+            aux.seekg(0, ios::end);
+            pos = data.tellg();
             aux.write((char*)&block, sizeof(SequentialBlock));
-        } 
+            current.next = pos;
+            current.next_file = 'A';
+        }
+
+        if (current_file == 'D'){
+            data.seekg(current_pos, ios::begin);
+            data.write((char*)&current, sizeof(SequentialBlock));
+        }
+        else if (current_file == 'A'){
+            aux.seekg(current_pos, ios::begin);
+            aux.write((char*)&current, sizeof(SequentialBlock));
+        }
+
+        data.close();
+        aux.close();
     }
+    
     bool remove(T key);
 };
