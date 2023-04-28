@@ -89,11 +89,11 @@ private:
         auxNew.close();
 
         //Borrar oldFile
-        std::remove("../test_data.dat");
+        std::remove(datafile.c_str());
 
         //Renombrar newFile
         newData.close();
-        std::rename("../datanew.dat", "../test_data.dat");
+        std::rename("../datanew.dat", datafile.c_str());
 
     };
 
