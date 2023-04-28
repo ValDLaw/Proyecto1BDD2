@@ -8,7 +8,7 @@
 #include <vector>
 
 using namespace std;
-const int K = 3;
+const int K = 4;
 
 struct Registro{
     int key;
@@ -33,24 +33,6 @@ private:
     int accessMemSec = 0;
     int auxCount = 0;
     int deletedCount = 0;
-
-public:
-    SequentialFile(string d, string a){
-        datafile = move(d);
-        auxfile = move(a);
-        fstream data(datafile, ios::app);
-        data.seekg(0, ios::end);
-        if (data.tellg() == 0){ //if file empty
-            SequentialBlock header;
-            header.next = -1;
-            header.next_file = 'D';
-            header.record = Registro();
-            data.write((char*)&header, sizeof(SequentialBlock));
-            fstream aux(auxfile, ios::app);
-            aux.close();
-        }
-        data.close();
-    }
 
     void rebuild(){ //auxCount = 0; deletedCount = 0
         fstream aux(auxfile, ios::in | ios::out | ios::binary);
@@ -113,10 +95,26 @@ public:
         //Renombrar newFile
         newData.close();
         std::rename("../datanew.dat", "../test_data.dat");
-        //Verificar si el while esta funcando 100% bien
 
     };
 
+public:
+    SequentialFile(string d, string a){
+        datafile = move(d);
+        auxfile = move(a);
+        fstream data(datafile, ios::app);
+        data.seekg(0, ios::end);
+        if (data.tellg() == 0){ //if file empty
+            SequentialBlock header;
+            header.next = -1;
+            header.next_file = 'D';
+            header.record = Registro();
+            data.write((char*)&header, sizeof(SequentialBlock));
+            fstream aux(auxfile, ios::app);
+            aux.close();
+        }
+        data.close();
+    }
 
     void read(){
         fstream aux(auxfile, ios::in | ios::out | ios::binary);
@@ -182,6 +180,10 @@ public:
         data.seekg(0, ios::beg);
         data.read((char*)&current, sizeof(SequentialBlock)); //current = header
 
+        if (this->auxCount == K){
+            rebuild();
+        };
+
         SequentialBlock next;
         while(current.next != -1){
             if (current.next_file == 'D'){
@@ -242,10 +244,6 @@ public:
         }
         data.close();
         aux.close();
-
-        /*if (auxCount == K){
-            rebuild();
-        }*/
         return true;
     }
 
@@ -294,6 +292,10 @@ public:
                 current = next;
             }
         }
+
+        if (this->deletedCount == K){
+            rebuild();
+        } 
     }
 
     vector<Registro> search(T key){
