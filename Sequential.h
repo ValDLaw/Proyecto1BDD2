@@ -55,14 +55,12 @@ public:
     vector<Registro> search(T key);
     vector<Registro> rangeSearch(T begin_key, T end_key);
 
-    void rebuild(){ //auxCount = 0; deletedCount = 0;
-
+    void rebuild(){ //auxCount = 0; deletedCount = 0
         fstream aux(auxfile, ios::in | ios::out | ios::binary);
 
-        //ENTIENDO que se queda en el buffer
         ifstream data(datafile, ios::in | ios::out | ios::binary);
 
-        fstream newData(datafile, ios::in | ios::out | ios::binary | ios::trunc);
+        fstream newData("../datanew.dat", ios::in | ios::out | ios::binary | ios::app);
 
         //Header
         SequentialBlock block;
@@ -73,10 +71,9 @@ public:
         char current_file = 'D';
 
         //Escribir header
-        newData.seekg(pos_block*sizeof(SequentialBlock), ios:beg);
+        newData.seekg(pos_block*sizeof(SequentialBlock), ios::beg);
         newData.write((char*)&block, sizeof(SequentialBlock));
-
-
+ 
         while (block.next != -1){
             pos_block = pos_block + 1;
 
@@ -115,10 +112,18 @@ public:
         data.close();
         aux.close();
 
-        //Falta reemplazar y vaciar el aux
-        //Ver si el newData funciona sobreeescribiendo el data
-        //Verificar si el while esta funcando 100% bien
+        //Con trunc se borra todo lo del file
+        fstream auxNew(auxfile, ios::in | ios::out | ios::binary | ios::trunc);
+        auxNew.close();
+        
+        //Borrar oldFile
+        std::remove("../test_data.dat");
+
+        //Renombrar newFile
         newData.close();
+        std::rename("../datanew.dat", "../test_data.dat");
+        //Verificar si el while esta funcando 100% bien
+
     };
 
 
