@@ -2,8 +2,7 @@
 // Created by ValDLaw on 4/20/23.
 //
 
-#include "Records/Product.h"
-#include "Records/Payment.h"
+#include "Datasets/Record.h"
 #include <vector>
 #include <unordered_map>
 
@@ -25,6 +24,7 @@ string decToBin(short dec) {
 
 struct Bucket{ // corresponde a una página (bloque de memoria) en donde se almacena uno o mas registros
     // short id;
+    // factor de bloque 4 o 5, pasarlo como parámetro
     short size = 0;
     short d = 1; // profundidad local
     vector<string> keys;
@@ -33,6 +33,11 @@ struct Bucket{ // corresponde a una página (bloque de memoria) en donde se alma
 
 struct HashIndex { // espacio de valores de la función hash y sus direcciones a los buckets de datos.
     unordered_map<string, short> reference; // alamacenamos el string de inicio con el id del bucket
+    // buscar nueva forma de guardarlo en forma secundaria
+    // el indice debe etrar en la ram, de la frma mas eficientemente posibe
+    // la cadeba binaria se saca del hashcode
+    // de izqueirda a derecha
+    // usar size_t para la funcion hashing
 public:
     HashIndex(){
         reference["0"] = 0; reference["10"] = 0; reference["110"] = 0; reference["100"] = 0;
@@ -40,8 +45,13 @@ public:
     }
 };
 
+// recomendacion, usar el index.dat  para no perder los cambios
+// el nodo interno guarda el bucket, la referencia a las keys
+// no crear bucket si es que no tiene elementos, entonces el nodo aputnaría a -1
+// la estrategia del RANDOM, cada vez que hay actualizaciones en la RAM, se debe escribir en la meoria secundaria, se envían todas las página del índice
+template<typename T>
 class ExtendibleHashing {
-    short D = 3; // profundidad global
+    short D = 8; // profundidad global
     int size = 1; // indica el último índice ocupado en el vector de Buckets
     HashIndex hashIndex;
     string filename;
@@ -60,9 +70,9 @@ public:
             int size_file = file.tellg();
             size_file = size_file / ((int)sizeof(Product));
             if(size_file != 0){
-                Product temp;
+                Record temp("nada");
                 file.seekg(0, ios::beg); // regresamos al inicio
-                while(file >> temp){
+                while(temp.read(cin)){
                     insert(temp); // in progress
                 }
                 file.close();
@@ -73,22 +83,24 @@ public:
         }
     }
 
-    short hashFunction(string key){
-        size_t hashValue = hash<string>{}(key);
-        return hashValue%(2^D);
+    // crear un extendible hash no agrupado
+
+    int hashFunction(string key){
+        size_t hashValue = hash<string>{}(key); // ASCI tmb puede ser
+        return hashValue%(2^D); // de frente devuelva el binario en string
     }
 
-    void insert(Product p){
+    void insert(Record record){
         ofstream file;
         file.open(filename,ios::app);
         if(file.is_open()){
-            file << p;
+            record.read(cin);
             file.close();
         }
         else{
             cout << "No se pudo abrir el archivo." << endl;
         }
-        string key = p.product_id;
+        string key = record.getID();
         short hashValue = hashFunction(key);
         string binCode = decToBin(hashValue);
         short bucketID = hashIndex.reference[binCode]; // obteniendo el bucket que corresponde
