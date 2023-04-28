@@ -55,7 +55,71 @@ public:
     vector<Registro> search(T key);
     vector<Registro> rangeSearch(T begin_key, T end_key);
 
-    void rebuild(); //auxCount = 0; deletedCount = 0;
+    void rebuild(){ //auxCount = 0; deletedCount = 0;
+
+        fstream aux(auxfile, ios::in | ios::out | ios::binary);
+
+        //ENTIENDO que se queda en el buffer
+        ifstream data(datafile, ios::in | ios::out | ios::binary);
+
+        fstream newData(datafile, ios::in | ios::out | ios::binary | ios::trunc);
+
+        //Header
+        SequentialBlock block;
+        data.seekg(0, ios::beg);
+        data.read((char*)&block, sizeof(SequentialBlock));
+
+        int pos_block = 0;
+        char current_file = 'D';
+
+        //Escribir header
+        newData.seekg(pos_block*sizeof(SequentialBlock), ios:beg);
+        newData.write((char*)&block, sizeof(SequentialBlock));
+
+
+        while (block.next != -1){
+            pos_block = pos_block + 1;
+
+            //Si es A o D, vas al nuevo bloque, lo lees,
+            //te ubicas en newData y lo escribes
+            if (current_file == 'D'){
+                data.seekg(block.next, ios::beg);
+                data.read((char*)&block, sizeof(SequentialBlock));
+            } else{
+                aux.seekg(block.next, ios::beg);
+                aux.read((char*)&block, sizeof(SequentialBlock));
+            }            
+
+            newData.seekg(pos_block*sizeof(SequentialBlock), ios::beg);
+            newData.write((char*)&block, sizeof(SequentialBlock));
+            current_file = block.next_file;
+        }
+
+        //Insertamos el ultimo
+        pos_block = pos_block + 1;
+        if (current_file == 'D'){
+            data.seekg(pos_block, ios::beg);
+            data.read((char*)&block, sizeof(SequentialBlock));
+        }
+        else if (current_file == 'A'){
+            aux.seekg(pos_block, ios::beg);
+            aux.read((char*)&block, sizeof(SequentialBlock));
+        }
+
+        newData.seekg(pos_block*sizeof(SequentialBlock), ios::beg);
+        newData.write((char*)&block, sizeof(SequentialBlock));
+
+        this->auxCount = 0;
+        this->deletedCount = 0;
+
+        data.close();
+        aux.close();
+
+        //Falta reemplazar y vaciar el aux
+        //Ver si el newData funciona sobreeescribiendo el data
+        //Verificar si el while esta funcando 100% bien
+        newData.close();
+    };
 
 
     void read(){
