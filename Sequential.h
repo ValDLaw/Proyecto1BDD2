@@ -44,20 +44,19 @@ private:
         SequentialBlock block;
         data.seekg(0, ios::beg);
         data.read((char*)&current, sizeof(SequentialBlock));
-        
+
         long pos_block = 0;
         char current_file = 'D';
-        
+
         data.seekg(0, ios::beg);
         data.read((char*)&block, sizeof(SequentialBlock));
-        block.next_file = current_file;        
+        block.next_file = current_file;
         block.next = (pos_block+1)*sizeof(SequentialBlock);
 
         //Escribimos header
         newData.seekg(0, ios::beg);
         newData.write((char*)&block, sizeof(SequentialBlock));
         while (current.next != -1){
-
             //Si es A o D, vas al nuevo bloque, lo lees,
             //te ubicas en newData y lo escribes
             if (current.next_file == 'D'){
@@ -66,7 +65,7 @@ private:
             } else if (current.next_file == 'A'){
                 aux.seekg(current.next, ios::beg);
                 aux.read((char*)&block, sizeof(SequentialBlock));
-            }            
+            }
 
             pos_block = pos_block + 1;
             current = block;
@@ -88,7 +87,7 @@ private:
         //Con trunc se borra todo lo del file
         fstream auxNew(auxfile, ios::in | ios::out | ios::binary | ios::trunc);
         auxNew.close();
-        
+
         //Borrar oldFile
         std::remove("../test_data.dat");
 
@@ -172,17 +171,18 @@ public:
     };
 
     bool add(Registro registro){
+        if (this->auxCount == K){
+            rebuild();
+        };
+
         fstream aux(auxfile, ios::in | ios::out | ios::binary);
         fstream data(datafile, ios::in | ios::out | ios::binary);
         long current_pos = 0;
         char current_file = 'D';
+
         SequentialBlock current;
         data.seekg(0, ios::beg);
         data.read((char*)&current, sizeof(SequentialBlock)); //current = header
-
-        if (this->auxCount == K){
-            rebuild();
-        };
 
         SequentialBlock next;
         while(current.next != -1){
@@ -229,6 +229,7 @@ public:
             aux.seekg(0, ios::end);
             pos = aux.tellg();
             aux.write((char*)&block, sizeof(SequentialBlock));
+            auxCount++;
             current.next = pos;
             current.next_file = 'A';
         }
@@ -240,10 +241,10 @@ public:
         else if (current_file == 'A'){
             aux.seekg(current_pos, ios::beg);
             aux.write((char*)&current, sizeof(SequentialBlock));
-            auxCount++;
         }
         data.close();
         aux.close();
+
         return true;
     }
 
@@ -295,7 +296,7 @@ public:
 
         if (this->deletedCount == K){
             rebuild();
-        } 
+        }
     }
 
     vector<Registro> search(T key){
