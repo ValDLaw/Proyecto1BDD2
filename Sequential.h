@@ -57,54 +57,48 @@ public:
 
     void rebuild(){ //auxCount = 0; deletedCount = 0
         fstream aux(auxfile, ios::in | ios::out | ios::binary);
-
-        ifstream data(datafile, ios::in | ios::out | ios::binary);
-
+        ifstream data(datafile, ios::in | ios::binary);
         fstream newData("../datanew.dat", ios::in | ios::out | ios::binary | ios::app);
 
         //Header
+        SequentialBlock current;
         SequentialBlock block;
         data.seekg(0, ios::beg);
-        data.read((char*)&block, sizeof(SequentialBlock));
-
-        int pos_block = 0;
+        data.read((char*)&current, sizeof(SequentialBlock));
+        
+        long pos_block = 0;
         char current_file = 'D';
+        
+        data.seekg(0, ios::beg);
+        data.read((char*)&block, sizeof(SequentialBlock));
+        block.next_file = current_file;        
+        block.next = (pos_block+1)*sizeof(SequentialBlock);
 
-        //Escribir header
-        newData.seekg(pos_block*sizeof(SequentialBlock), ios::beg);
+        //Escribimos header
+        newData.seekg(0, ios::beg);
         newData.write((char*)&block, sizeof(SequentialBlock));
- 
-        while (block.next != -1){
-            pos_block = pos_block + 1;
+        while (current.next != -1){
 
             //Si es A o D, vas al nuevo bloque, lo lees,
             //te ubicas en newData y lo escribes
-            if (current_file == 'D'){
-                data.seekg(block.next, ios::beg);
+            if (current.next_file == 'D'){
+                data.seekg(current.next, ios::beg);
                 data.read((char*)&block, sizeof(SequentialBlock));
-            } else{
-                aux.seekg(block.next, ios::beg);
+            } else if (current.next_file == 'A'){
+                aux.seekg(current.next, ios::beg);
                 aux.read((char*)&block, sizeof(SequentialBlock));
             }            
 
+            pos_block = pos_block + 1;
+            current = block;
+
+            block.next_file = 'D';
+            if (block.next != -1){
+                block.next = (pos_block+1)*sizeof(SequentialBlock);
+            }
             newData.seekg(pos_block*sizeof(SequentialBlock), ios::beg);
             newData.write((char*)&block, sizeof(SequentialBlock));
-            current_file = block.next_file;
         }
-
-        //Insertamos el ultimo
-        pos_block = pos_block + 1;
-        if (current_file == 'D'){
-            data.seekg(pos_block, ios::beg);
-            data.read((char*)&block, sizeof(SequentialBlock));
-        }
-        else if (current_file == 'A'){
-            aux.seekg(pos_block, ios::beg);
-            aux.read((char*)&block, sizeof(SequentialBlock));
-        }
-
-        newData.seekg(pos_block*sizeof(SequentialBlock), ios::beg);
-        newData.write((char*)&block, sizeof(SequentialBlock));
 
         this->auxCount = 0;
         this->deletedCount = 0;
