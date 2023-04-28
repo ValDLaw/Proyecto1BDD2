@@ -49,7 +49,7 @@ public:
 // el nodo interno guarda el bucket, la referencia a las keys
 // no crear bucket si es que no tiene elementos, entonces el nodo aputnaría a -1
 // la estrategia del RANDOM, cada vez que hay actualizaciones en la RAM, se debe escribir en la meoria secundaria, se envían todas las página del índice
-template<typename T>
+
 class ExtendibleHashing {
     short D = 8; // profundidad global
     int size = 1; // indica el último índice ocupado en el vector de Buckets
@@ -70,11 +70,11 @@ public:
             int size_file = file.tellg();
             size_file = size_file / ((int)sizeof(Product));
             if(size_file != 0){
-                Record temp("nada");
+                /*Record temp("nada");
                 file.seekg(0, ios::beg); // regresamos al inicio
                 while(temp.read(cin)){
                     insert(temp); // in progress
-                }
+                }*/
                 file.close();
             }
         }
