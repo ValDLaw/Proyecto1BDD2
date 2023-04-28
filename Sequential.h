@@ -321,11 +321,12 @@ public:
             else if (next.record.key > key){//si el siguiente es mayor, ya no se va a encontrar el key
                 data.close();
                 aux.close();
-                return res;
+                break;
             }
             current = next; //si es menor sigue
-        }
-    }
+        };
+        return res;
+    };
 
     vector<Registro> rangeSearch(T begin_key, T end_key){
         vector<Registro> res;
@@ -340,23 +341,22 @@ public:
             if (current.next_file == 'D'){
                 data.seekg(current.next, ios::beg);
                 data.read((char*)&next, sizeof(SequentialBlock));
-            }
-            else if (current.next_file == 'A'){
+            }else if (current.next_file == 'A'){
                 aux.seekg(current.next, ios::beg);
                 aux.read((char*)&next, sizeof(SequentialBlock));
-            }
+            };
 
             if (next.record.key >= begin_key and next.record.key <= end_key){//Si se encuentra el key
                 res.push_back(next.record);
-            }
-            else if (next.record.key > end_key){//si el siguiente es mayor, ya no se va a encontrar el key
+            }else if (next.record.key > end_key){//si el siguiente es mayor, ya no se va a encontrar el key
                 data.close();
                 aux.close();
-                return res;
-            }
+                break;
+            };
             current = next; //si es menor sigue
-        }
-    }
+        };
+        return res;
+    };
 };
 
 #endif //PROYECTO1BDD2_SEQ_H
