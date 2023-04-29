@@ -4,10 +4,14 @@ Integrantes:
 - Valeria Espinoza Tarazona (202110109)
 - Sofía García Quintana (202110567)
 - Enzo Camizán Vidal (202110047)
-- Dieguito
+- Diego Guerra Chevarría (202010137)
 
 ## Introducción
+
+
+
 ### Objetivo del proyecto
+
 
 ### Descripción del dominio de datos a utilizar
 
