@@ -67,18 +67,18 @@ public:
         return stream;
     }
 
-    ostream & operator << (ostream & stream)
+    friend ostream & operator << (ostream & stream, const Payment& pay)
     {
         stream << "\n";
-        stream << id;
+        stream << pay.id;
         stream << ",";
-        stream << payment_sequential;
+        stream << pay.payment_sequential;
         stream << ",";
-        stream << payment_type;
+        stream << pay.payment_type;
         stream << ",";
-        stream << payment_installments;
+        stream << pay.payment_installments;
         stream << ",";
-        stream << payment_value;
+        stream << pay.payment_value;
         stream << flush;
         return stream;
     }
@@ -112,43 +112,73 @@ struct Product : public Record {
     string product_description;
     short product_photos;
 public:
+    Product(string id): Record(id){};
     Product(string id, string c, short pnl, string pd, short pp) : Record(id) {
             category = c;
             product_name_lenght = pnl;
             product_description = pd;
             product_photos = pp;
     }
-    istream & operator >> (istream & stream){
+
+    virtual istream& read(istream& input) override {
+        string line;
+        getline(input, line); // Skipeamos header del csv
+        stringstream ss(line);
+        ss >> *this;
+        return input;
+    }
+
+    friend istream & operator >> (istream & stream, Product & prod) {
         string S, T;
-        getline(stream, S); // Skipeamos la primera fila de nombres de atributos
         getline(stream, S);
         stringstream X(S); // leer string tipo stream
         short count = 1;
 
         while (getline(X, T, ',')) {
-            if(count == 1) {id = T;}
-            else if(count == 2) {category = T;}
-            else if(count == 3) product_name_lenght = stoi(T);
-            else if(count == 4) product_description = T;
-            else  product_photos = stoi(T);
+            if(count == 1) {prod.id = T;}
+            else if(count == 2) {prod.category = T;}
+            else if(count == 3) prod.product_name_lenght = stoi(T);
+            else if(count == 4) prod.product_description = T;
+            else  prod.product_photos = stoi(T);
             // cout << T << endl;
             count++;
         }
         return stream;
     }
+    /*
+    //Anterior istream
+    friend istream & operator >> (istream & stream, Product & prod) {
+        string S, T;
+        //getline(stream, S); // Skipeamos la primera fila de nombres de atributos
+        getline(stream, S);
+        stringstream X(S); // leer string tipo stream
+        short count = 1;
 
-    ostream & operator << (ostream & stream)
+        while (getline(X, T, ',')) {
+            if(count == 1) {prod.id = T;}
+            else if(count == 2) {prod.category = T;}
+            else if(count == 3) prod.product_name_lenght = stoi(T);
+            else if(count == 4) prod.product_description = T;
+            else  prod.product_photos = stoi(T);
+            // cout << T << endl;
+            count++;
+        }
+        return stream;
+    }
+    */
+
+    friend ostream & operator << (ostream & stream, const Product& prod)
     {
         stream << "\n";
-        stream << id;
+        stream << prod.id;
         stream << ",";
-        stream << category;
+        stream << prod.category;
         stream << ",";
-        stream << product_name_lenght;
+        stream << prod.product_name_lenght;
         stream << ",";
-        stream << product_description;
+        stream << prod.product_description;
         stream << ",";
-        stream << product_photos;
+        stream << prod.product_photos;
         stream << flush;
         return stream;
     }
@@ -172,6 +202,8 @@ public:
         cout << "\nProduct description: " << product_description;
         cout << "\nProduct number of photos : " << product_photos;
     }
+
+
 
     ~Product() {}
 };
