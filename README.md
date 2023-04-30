@@ -14,9 +14,11 @@ Así como en otros sectores, las startups enfocadas en el comercio electrónico 
 
 ### Objetivo del proyecto
 
-
+El objetivo del presente proyecto consiste en estructurar y programar un gestor funcional de bases de datos con GUI implementada, a fin de administrar el dataset de pagos y productos de Olist. El gestor contará con operaciones de inserción, eliminación y búsqueda (específica y por rango), accediendo a las estructuras del tipo AVL File, Sequential File y Extensible Hash según sea más óptimo.
 
 ### Descripción del dominio de datos a utilizar
+
+
 
 ### Resultados que se esperan obtener
 
