@@ -18,9 +18,11 @@ El objetivo del presente proyecto consiste en estructurar y programar un gestor 
 
 ### Descripción del dominio de datos a utilizar
 
-
+El dominio de datos que hemos escogido para nuestro proyecto consiste en dos archivos con registros de Olist: uno que enlista los productos en venta y otro que almacena información sobre los pagos procesados.
 
 ### Resultados que se esperan obtener
+
+Al desarrollar el gestor de bases de datos, esperamos que sea capaz de seleccionar la estructura más óptima para las operaciones de inserción, eliminación y búsqueda respectivamente, y que las estructuras programadas cumplan con sus funcionalidades sin soltar errores y en tiempos de ejecución aceptables. También esperamos implementar un parser SQL completamente funcional con una GUI decente que acompañe para insertar las consultas.
 
 ## Técnicas utilizadas
 ### AVL File
