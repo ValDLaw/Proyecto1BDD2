@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include <fstream>
-#include <string>
+#include <cstring>
 #include <sstream>
 #include <algorithm>
 
@@ -20,26 +20,18 @@ private:
     int product_name_length;
     int product_description_length;
     int product_photos;
-    int product_weight_g;
-    int product_length_cm;
-    int product_height_cm;
-    int product_width_cm;
 public:
     int nextDel;
     char reference;
     Product() = default;
-    Product(string product_id, string category, int product_name_lenght, int product_description_lenght, int product_photos, int product_weight_g, int product_length_cm, int product_height_cm, int product_width_cm){
-        if(product_id.size() > 32 ) product_id = product_id.substr(0, 32);
-        if(category.size() > 50) category = category.substr(0, 50);
-        strcpy(this->product_id, product_id.c_str());
-        strcpy(this->category, category.c_str());
+    Product(char product_id[32], char category[50], int product_name_lenght, int product_description_lenght, int product_photos){
+
+        copy_n(product_id, 32, this->product_id);
+        copy_n(category, 50, this->category);
+
         this->product_name_length = product_name_lenght;
         this->product_description_length = product_description_lenght;
         this->product_photos = product_photos;
-        this->product_weight_g = product_weight_g;
-        this->product_length_cm = product_length_cm;
-        this->product_height_cm = product_height_cm;
-        this->product_width_cm = product_width_cm;
         this->nextDel = 0;
     }
     void showData(){
@@ -48,10 +40,6 @@ public:
         cout << "Product name lenght   : " << product_name_length << endl;
         cout << "Product description     : " << product_description_length << endl;
         cout << "Product photos       : " << product_photos << endl;
-        cout << "Product weight (g)      : " << product_weight_g << endl;
-        cout << "Product length (cm)   : " << product_length_cm << endl;
-        cout << "Product height (cm)     : " << product_height_cm << endl;
-        cout << "Product width (cm)       : " << product_width_cm << endl;
     }
     bool operator < (Product& other){
         return strcmp(this->product_id, other.product_id) < 0;
@@ -64,6 +52,7 @@ public:
     const char *getPrimaryKey() const {
         return product_id;
     }
+
     bool equalToKey(const char* key){
         return strcmp(this->product_id, key) == 0;
     }

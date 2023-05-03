@@ -4,49 +4,16 @@
 
 #ifndef PROYECTO1BDD2_AVL_H
 #define PROYECTO1BDD2_AVL_H
+
 #include <iostream>
 #include <algorithm>
 #include <cstring>
 #include <fstream>
-
 using namespace std;
 
-/// SINO FUNCIONA
-// CAMBIAR STOI con ATOI
 
-/*
-struct Record
-{
-    char cod[5] ;
-    char nombre[20];
-    int ciclo;
-
-    Record() = default;
-    Record(char n[5]  , char c[20] , int semester){
-        std::copy_n(n,5,cod);
-        std::copy_n(c, 20, nombre);
-        ciclo = semester;
-    }
-    void setData(){
-        cout << "Codigo:  "; cin >> cod ;
-        cout << "Nombre: "; cin >> nombre ;
-        cout << "Ciclo: "; cin >> ciclo;
-    }
-    string getKey(){
-        return cod ;
-    }
-};
-
-ostream& operator<<(ostream& res, Record& record){
-    res << "\n";
-    res << "Codigo: " << record.cod << ",  ";
-    res << "Nombre: " << record.nombre << ",  ";
-    res << "Ciclo: " << record.ciclo;
-    res << endl;
-    return res;
-}
-
-class AVLFile {
+template<typename Record>
+class AVL {
 private:
 
     struct NodeBT {
@@ -61,7 +28,7 @@ private:
             height = 0;
         }
 
-        NodeBT(Record &record) {
+        NodeBT(Record record) {
             data = record;
             left = right = -1;
             height = 0;
@@ -72,14 +39,16 @@ private:
     string filename;
 
 public:
-    AVLFile(std::string ifilename){
+    explicit AVL(std::string ifilename){
+
         filename =  ifilename;
         fstream inFile;
         inFile.open(filename,ios::in | ios::binary);
         inFile.seekp(0, std::ios_base::end);
         int L  = inFile.tellp();
-         root = (L ==-1)?-1:0;
+        root = (L ==-1)?-1:0;
         inFile.close();
+
     }
 
     NodeBT getNode( fstream& inFile , long NodeTTemp){
@@ -95,6 +64,7 @@ public:
         if(!inFile.is_open()){
             cout << "NO ABIERTO" << endl;
         }
+
         inFile.seekp(0, std::ios_base::end);
         long pos = inFile.tellp();
         NodeBT nodeBt(record1);
@@ -109,17 +79,17 @@ public:
         inFile.close();
     }
 
-    void insert(fstream &inFile, long NodoActual, long NuevoNodo ,long posParent ,Record &record ){
+    void insert(fstream &inFile, long NodoActual, long NuevoNodo ,long posParent ,Record record ){
         if(NodoActual == -1 ){
             NodeBT temp1 = getNode( inFile ,posParent );
-            (stoi(record.cod) < stoi(temp1.data.cod) ? temp1.left : temp1.right) = NuevoNodo;
+            ((record.getPrimaryKey()) < (temp1.data.getPrimaryKey()) ? temp1.left : temp1.right) = NuevoNodo;
             inFile.seekp(posParent);
             inFile.write((char*)& temp1, sizeof (temp1));
             return;
         }
         else {
             NodeBT temp = getNode(inFile ,NodoActual);
-            if(stoi(record.cod) < stoi(temp.data.cod)){
+            if((record.getPrimaryKey()) < (temp.data.getPrimaryKey())){
                 insert(inFile, temp.left , NuevoNodo, NodoActual, record);
             }else{
                 insert(inFile, temp.right, NuevoNodo, NodoActual , record);
@@ -266,14 +236,11 @@ public:
         if(NodoActual == -1){
             return;
         }
-        else if(stoi(value) < stoi(node.data.cod) ){
-
+        else if((value) < (node.data.getPrimaryKey()) ){
             remove(File, node.left , NodoActual , value);
             updateHeight(File, NodoActual);
             balance(File, NodoActual);
-
-        }else if(stoi(value) > stoi(node.data.cod) ){
-
+        }else if((value) > (node.data.getPrimaryKey()) ){
             remove(File, node.right , NodoActual, value);
             updateHeight(File, NodoActual);
             balance(File, NodoActual);
@@ -314,10 +281,10 @@ public:
                 File.write((char*)&nodoHijo, sizeof(nodoHijo));
             }else{
                 string temp = maxValue(File,node.left);
-                temp.resize(5);
-                char dat[5];
+                temp.resize(32);
+                char dat[32];
                 strcpy(dat, temp.c_str());
-                copy_n(dat,5,node.data.cod);
+                node.data.getPrimaryKey() = dat;
                 File.seekp(NodoActual);
                 File.write((char*)& node, sizeof(node) );
                 remove(File, node.left, NodoActual, dat);
@@ -330,7 +297,7 @@ public:
         if(NodoActual == -1){
             throw invalid_argument("Esta Vacio");
         }else if(nodo.right == -1){
-            return nodo.data.cod;
+            return nodo.data.getPrimaryKey();
         }else{
             return maxValue(File, nodo.right);
         }
@@ -346,7 +313,7 @@ public:
             inFile.clear();
             if(!a1.del) {
                 cout << "POS " << a1.pos;
-                cout << a1.data;
+                cout << &a1.data;
                 cout << " Pos Left : " << a1.left << "  Pos right : " << " " << a1.right << " Heigh : " << a1.height;
                 cout << endl << endl;
             }
@@ -357,13 +324,13 @@ public:
     Record search(string value)
     {
         std::ifstream file(this->filename, std::ios::binary);
-        value.resize(5);
+        value.resize(32);
         Record result = search(file, root, value);
         file.close();
         return result;
     }
 
-    static Record search(std::ifstream &file, long record_pos,string value)
+     Record search(std::ifstream &file, long record_pos,string value)
     {
         if (record_pos == -1)
             throw "Archivo Vacio";
@@ -371,9 +338,9 @@ public:
             NodeBT temp;
             file.seekg(record_pos);
             file.read((char*)&temp, sizeof(NodeBT));
-            if ( stoi(value) < stoi(temp.data.cod))
+            if ( (value) < (temp.data.getPrimaryKey()))
                 return search(file, temp.left, value);
-            else if (stoi(value) > stoi(temp.data.cod))
+            else if ((value) > (temp.data.getPrimaryKey()))
                 return search(file, temp.right, value);
             else
                 return temp.data;
@@ -381,55 +348,5 @@ public:
     }
 
 };
-
-void writeFile(string filename){
-    AVLFile file(filename);
-
-    file.insert({"5","Julia",7});
-    file.insert({"6","Azul",2});
-    file.insert({"7","Marco",2});
-    file.insert({"1","Arturo",3});
-    file.insert({"2","ENZO",5});
-    file.insert({"62","ENZO",5});
-    file.insert({"89","Olga",8});
-    file.insert({"3","Olga",8});
-    file.insert({"4","Andres",6});
-    file.insert({"15","Arturo",3});
-    file.insert({"33","Andres",6});
-
-
-
-}
-
-void readFile(string filename)
-{
-    AVLFile file(filename);
-    cout<< endl << "--------SHOW DATA------------\n"<<endl;
-    file.scanAll();
-    cout << endl <<"--------SEARCH------------\n " << endl;
-    Record record = file.search("15");
-    cout  << record << endl;
-    cout << endl <<"--------REMOVE6------------\n " << endl;
-    file.remove("6");
-    file.scanAll();
-    cout << endl <<"--------REMOVE1------------\n " << endl;
-    file.remove("1");
-    file.scanAll();
-    cout << endl <<"--------REMOVE15------------\n " << endl;
-    file.remove("15");
-    file.scanAll();
-    cout << endl <<"--------REMOVE4------------\n " << endl;
-    file.remove("4");
-    file.scanAll();
-
-}
-
-int main(){
-
-    writeFile("data.dat");
-    readFile("data.dat");
-}
- */
-
 
 #endif //PROYECTO1BDD2_AVL_H

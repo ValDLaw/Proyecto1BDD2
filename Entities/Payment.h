@@ -7,27 +7,25 @@
 
 #include <iostream>
 #include <fstream>
-#include <string>
+#include <cstring>
 #include <sstream>
 #include <algorithm>
 
 using namespace std;
 
 struct Payment {
-private:
     char order_id[32];
     int payment_sequential;
     char payment_type[11];
     int payment_installments;
     float payment_value;
-public:
     int nextDel;
     char reference;
     Payment() = default;
-    Payment(string order_id, int payment_sequential, string payment_type, int payment_installments, float payment_value){
-        if(order_id.size() > 32 ) order_id = order_id.substr(0, 32);
+    Payment(char order_id[32], int payment_sequential, char payment_type[11], int payment_installments, float payment_value){
+        copy_n(order_id, 32, this->order_id);
         this->payment_sequential = payment_sequential;
-        if(payment_type.size() > 11) payment_type = payment_type.substr(0, 11);
+        copy_n(payment_type, 11, this->payment_type);
         this->payment_installments = payment_installments;
         this->payment_value = payment_value;
         this->nextDel = 0;
@@ -50,6 +48,8 @@ public:
     const char *getPrimaryKey() const {
         return order_id;
     }
+
+
     bool equalToKey(const char* key){
         return strcmp(this->order_id, key) == 0;
     }
@@ -109,6 +109,16 @@ public:
     void setPaymentValue(string payment_value){
         this->payment_value = stof(payment_value);
     }
+
+    friend ostream& operator<<(ostream& os, const Payment& pago) {
+        os << "Order ID: " << pago.order_id << endl;
+        os << "Payment Sequential: " << pago.payment_sequential << endl;
+        os << "Payment Type: " << pago.payment_type << endl;
+        os << "Payment Installments: " << pago.payment_installments << endl;
+        os << "Payment Value: " << pago.payment_value << endl;
+        return os;
+    }
+
 
 };
 
