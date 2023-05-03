@@ -41,10 +41,8 @@ public:
         payment_installments = pi;
         payment_value = pv;
     }
-
-    friend istream& operator>>(istream& stream, Payment& pay) {
+    friend istream & operator >> (istream & stream, Payment& pay) {
         string S, T;
-        // getline(stream, S); // Skipeamos la primera fila de nombres de atributos
         getline(stream, S);
         stringstream X(S); // leer string tipo stream
         short count = 1;
@@ -60,12 +58,20 @@ public:
         }
         return stream;
     }
-
+    
+    virtual istream& read(istream& input) override {
+        string line;
+        getline(input, line); // Skipeamos header del csv
+        stringstream ss(line);
+        ss >> *this;
+        return input;
+    }
+    /*
     virtual istream& read(istream& stream) override {
         Record::read(stream);  // Llama a la implementación de leer de la clase base
         stream >> *this;  // Llama a la sobrecarga del operador >> de istream de la clase Payment
         return stream;
-    }
+    }*/
 
     friend ostream & operator << (ostream & stream, const Payment& pay)
     {
@@ -119,7 +125,6 @@ public:
             product_description = pd;
             product_photos = pp;
     }
-
     virtual istream& read(istream& input) override {
         string line;
         getline(input, line); // Skipeamos header del csv
@@ -202,8 +207,6 @@ public:
         cout << "\nProduct description: " << product_description;
         cout << "\nProduct number of photos : " << product_photos;
     }
-
-
 
     ~Product() {}
 };
