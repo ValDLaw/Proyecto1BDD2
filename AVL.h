@@ -14,7 +14,7 @@ using namespace std;
 /// SINO FUNCIONA
 // CAMBIAR STOI con ATOI
 
-
+/*
 struct Record
 {
     char cod[5] ;
@@ -429,6 +429,7 @@ int main(){
     writeFile("data.dat");
     readFile("data.dat");
 }
+ */
 
 
 #endif //PROYECTO1BDD2_AVL_H
