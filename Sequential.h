@@ -258,6 +258,7 @@ public:
         fstream aux(auxfile, ios::in | ios::out | ios::binary);
         fstream data(datafile, ios::in | ios::out | ios::binary);
         long current_pos = 0;
+        long temp_pos = 0;
         char current_file = 'D';
         SequentialBlock current;
         data.seekg(0, ios::beg);
@@ -268,10 +269,21 @@ public:
             if (current.next_file == 'D'){
                 data.seekg(current.next, ios::beg);
                 data.read((char*)&next, sizeof(SequentialBlock));
+                if (next.record.key == key){
+                    temp_pos = next.next;
+                    next.next = -2;
+                    data.seekg(current.next, ios::beg);
+                    data.write((char*)&next, sizeof(SequentialBlock));
+                }
             }
             else if (current.next_file == 'A'){
                 aux.seekg(current.next, ios::beg);
                 aux.read((char*)&next, sizeof(SequentialBlock));
+                if (next.record.key == key){
+                    next.next = -2;
+                    aux.seekg(current.next, ios::beg);
+                    aux.write((char*)&next, sizeof(SequentialBlock));
+                }
             }
 
             if (next.record.key == key){//Si se encuentra el key
@@ -285,6 +297,7 @@ public:
                     aux.seekg(current_pos, ios::beg);
                     aux.write((char*)&current, sizeof(SequentialBlock));
                 }
+
                 data.close();
                 aux.close();
                 deletedCount++;
@@ -307,64 +320,66 @@ public:
 
     vector<Registro> search(T key){
         vector<Registro> res;
-        fstream aux(auxfile, ios::in | ios::out | ios::binary);
-        fstream data(datafile, ios::in | ios::out | ios::binary);
+        fstream data(datafile, ios::in | ios::binary);
         SequentialBlock current;
-        data.seekg(0, ios::beg);
-        data.read((char*)&current, sizeof(SequentialBlock)); //current = header
+        data.seekg(0, ios::end);
+        long long fileSize = data.tellg();
+        int low = 0, high = fileSize/sizeof(SequentialBlock) - 1;
 
-        SequentialBlock next;
-        while(current.next != -1){
-            if (current.next_file == 'D'){
-                data.seekg(current.next, ios::beg);
-                data.read((char*)&next, sizeof(SequentialBlock));
-            }
-            else if (current.next_file == 'A'){
-                aux.seekg(current.next, ios::beg);
-                aux.read((char*)&next, sizeof(SequentialBlock));
-            }
-
-            if (next.record.key == key){//si se encuentra el key
-                res.push_back(next.record);
-            }
-            else if (next.record.key > key){//si el siguiente es mayor, ya no se va a encontrar el key
+        while (low <= high) {
+            int mid = (low + high) / 2;
+            data.seekg(mid * sizeof(SequentialBlock));
+            data.read((char*)&current, sizeof(SequentialBlock));
+            if (current.record.key == key and current.next != -2) {
+                res.push_back(current.record);
                 data.close();
-                aux.close();
-                break;
+                cout << "found in data" << endl;
+                return res;
+                //codigo en caso el key se repita
+            } else if (current.record.key < key) {
+                low = mid + 1;
+            } else {
+                high = mid - 1;
             }
-            current = next; //si es menor sigue
-        };
+        }
+
+        fstream aux(auxfile, ios::in | ios::binary);
+        data.seekg(0, ios::end);
+        while (aux.read((char*)(&current), sizeof(SequentialBlock))) {
+            if (current.record.key == key) {
+                res.push_back(current.record);
+            }
+        }
+
         return res;
     };
 
+    /*
+    //en caso el key se repita
+    int pos = mid - 1;
+    while (pos >= low) {
+        data.seekg(pos * sizeof(SequentialBlock));
+        data.read((char*)&current, sizeof(SequentialBlock));
+        if (current.key == key) {
+            res.push_back(current.record);
+            pos--;
+        }
+    }
+    pos = mid + 1;
+    while (pos <= high) {
+        data.seekg(pos * sizeof(SequentialBlock));
+        data.read((char*)&current, sizeof(SequentialBlock));
+        if (current.key == key) {
+            res.push_back(current.record);
+            pos++;
+        }
+    }
+    break;
+    */
+
     vector<Registro> rangeSearch(T begin_key, T end_key){
-        vector<Registro> res;
-        fstream aux(auxfile, ios::in | ios::out | ios::binary);
-        fstream data(datafile, ios::in | ios::out | ios::binary);
-        SequentialBlock current;
-        data.seekg(0, ios::beg);
-        data.read((char*)&current, sizeof(SequentialBlock)); //current = header
-
-        SequentialBlock next;
-        while(current.next != -1){
-            if (current.next_file == 'D'){
-                data.seekg(current.next, ios::beg);
-                data.read((char*)&next, sizeof(SequentialBlock));
-            }else if (current.next_file == 'A'){
-                aux.seekg(current.next, ios::beg);
-                aux.read((char*)&next, sizeof(SequentialBlock));
-            };
-
-            if (next.record.key >= begin_key and next.record.key <= end_key){//Si se encuentra el key
-                res.push_back(next.record);
-            }else if (next.record.key > end_key){//si el siguiente es mayor, ya no se va a encontrar el key
-                data.close();
-                aux.close();
-                break;
-            };
-            current = next; //si es menor sigue
-        };
-        return res;
+        vector<Registro> temp;
+        return temp;
     };
 };
 
