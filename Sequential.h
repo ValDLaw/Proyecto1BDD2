@@ -280,6 +280,7 @@ public:
                 aux.seekg(current.next, ios::beg);
                 aux.read((char*)&next, sizeof(SequentialBlock));
                 if (next.record.key == key){
+                    temp_pos = next.next;
                     next.next = -2;
                     aux.seekg(current.next, ios::beg);
                     aux.write((char*)&next, sizeof(SequentialBlock));
@@ -287,7 +288,7 @@ public:
             }
 
             if (next.record.key == key){//Si se encuentra el key
-                current.next = next.next;
+                current.next = temp_pos;
                 current.next_file = next.next_file;
                 if (current_file == 'D'){
                     data.seekg(current_pos, ios::beg);
@@ -354,33 +355,7 @@ public:
         return res;
     };
 
-    /*
-    //en caso el key se repita
-    int pos = mid - 1;
-    while (pos >= low) {
-        data.seekg(pos * sizeof(SequentialBlock));
-        data.read((char*)&current, sizeof(SequentialBlock));
-        if (current.key == key) {
-            res.push_back(current.record);
-            pos--;
-        }
-    }
-    pos = mid + 1;
-    while (pos <= high) {
-        data.seekg(pos * sizeof(SequentialBlock));
-        data.read((char*)&current, sizeof(SequentialBlock));
-        if (current.key == key) {
-            res.push_back(current.record);
-            pos++;
-        }
-    }
-    break;
-    */
-
-    vector<Registro> rangeSearch(T begin_key, T end_key){
-        vector<Registro> temp;
-        return temp;
-    };
+    vector<Registro> rangeSearch(T begin_key, T end_key){};
 };
 
 #endif //PROYECTO1BDD2_SEQ_H
