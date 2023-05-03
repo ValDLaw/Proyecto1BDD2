@@ -6,7 +6,6 @@
 #include <fstream>
 #include <utility>
 #include <vector>
-#include "./Datasets/Record.h"
 
 
 using namespace std;
@@ -329,12 +328,11 @@ public:
 
         while (low <= high) {
             int mid = (low + high) / 2;
-            data.seekg(mid * sizeof(SequentialBlock));
+            data.seekg(mid * sizeof(SequentialBlock),ios::beg);
             data.read((char*)&current, sizeof(SequentialBlock));
             if (current.record.key == key and current.next != -2) {
                 res.push_back(current.record);
                 data.close();
-                cout << "found in data" << endl;
                 return res;
                 //codigo en caso el key se repita
             } else if (current.record.key < key) {
@@ -347,7 +345,7 @@ public:
         fstream aux(auxfile, ios::in | ios::binary);
         data.seekg(0, ios::end);
         while (aux.read((char*)(&current), sizeof(SequentialBlock))) {
-            if (current.record.key == key) {
+            if (current.record.key == key and current.next != -2) {
                 res.push_back(current.record);
             }
         }
@@ -355,7 +353,54 @@ public:
         return res;
     };
 
-    vector<Registro> rangeSearch(T begin_key, T end_key){};
+    vector<Registro> rangeSearch(T begin_key, T end_key){
+        vector<Registro> res;
+        fstream data(datafile, ios::in | ios::binary);
+        SequentialBlock current;
+        data.seekg(0, ios::end);
+        long long n = data.tellg()/sizeof(SequentialBlock);
+        int low = 0, high = n - 1;
+
+        while (low <= high) {
+            int mid = (low + high) / 2;
+            data.seekg(mid * sizeof(SequentialBlock),ios::beg);
+            data.read((char*)&current, sizeof(SequentialBlock));
+
+            if (current.record.key < begin_key) {
+                low = mid + 1;
+            }
+            else if (current.record.key > end_key){
+                high = mid - 1;
+            }
+            else{
+                while (current.record.key >= begin_key and current.record.key <= end_key) {
+                    if (current.next != -2) {
+                        res.push_back(current.record);
+                    }
+                    if (data.eof()) break;
+                    data.read((char*)&current, sizeof(SequentialBlock));
+                }
+                low = mid + 1;
+                high = mid - 1;
+            }
+        }
+
+        data.close();
+
+        fstream aux(auxfile, ios::in | ios::binary);
+        aux.seekg(0, ios::beg);
+        while (aux.read((char*)(&current), sizeof(SequentialBlock))) {
+            if (current.record.key >= begin_key and current.record.key <= end_key) {
+                if (current.next != -2) {
+                    res.push_back(current.record);
+                }
+            }
+        }
+
+        aux.close();
+
+        return res;
+    };
 };
 
 #endif //PROYECTO1BDD2_SEQ_H
