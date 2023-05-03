@@ -46,7 +46,7 @@ ostream& operator<<(ostream& res, Record& record){
     return res;
 }
 
-class BSTFile {
+class AVLFile {
 private:
 
     struct NodeBT {
@@ -72,7 +72,7 @@ private:
     string filename;
 
 public:
-    BSTFile(std::string ifilename){
+    AVLFile(std::string ifilename){
         filename =  ifilename;
         fstream inFile;
         inFile.open(filename,ios::in | ios::binary);
@@ -383,7 +383,7 @@ public:
 };
 
 void writeFile(string filename){
-    BSTFile file(filename);
+    AVLFile file(filename);
 
     file.insert({"5","Julia",7});
     file.insert({"6","Azul",2});
@@ -403,7 +403,7 @@ void writeFile(string filename){
 
 void readFile(string filename)
 {
-    BSTFile file(filename);
+    AVLFile file(filename);
     cout<< endl << "--------SHOW DATA------------\n"<<endl;
     file.scanAll();
     cout << endl <<"--------SEARCH------------\n " << endl;
