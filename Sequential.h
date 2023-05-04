@@ -16,16 +16,6 @@ const int K = 4;
 //dado que nuestra data es de alrededor 100 000 registros para Payments y 30 000 para Products
 //Siempre haciendo que k sea <= log(n)
 
-struct Registro{
-    int key;
-
-    Registro() = default;
-
-    Registro(int key){
-        this->key = key;
-    };
-};
-
 template <typename Record>
 class SequentialFile{
 private:
@@ -36,7 +26,7 @@ private:
 
         SequentialBlock(){
             next = -1;
-            next_file = 'D'
+            next_file = 'D';
         }
     };
     string datafile;
@@ -237,7 +227,6 @@ public:
             data.seekg(0, ios::end);
             pos = data.tellg();
             data.write((char*)&block, sizeof(SequentialBlock));
-            accessMemSec++;
             current.next = pos;
             current.next_file = 'D';
         }
@@ -245,7 +234,6 @@ public:
             aux.seekg(0, ios::end);
             pos = aux.tellg();
             aux.write((char*)&block, sizeof(SequentialBlock));
-            accessMemSec++;
             auxCount++;
             current.next = pos;
             current.next_file = 'A';
@@ -254,12 +242,10 @@ public:
         if (current_file == 'D'){
             data.seekg(current_pos, ios::beg);
             data.write((char*)&current, sizeof(SequentialBlock));
-            accessMemSec++;
         }
         else if (current_file == 'A'){
             aux.seekg(current_pos, ios::beg);
             aux.write((char*)&current, sizeof(SequentialBlock));
-            accessMemSec++;
         }
         data.close();
         aux.close();
@@ -283,12 +269,11 @@ public:
             if (current.next_file == 'D'){
                 data.seekg(current.next, ios::beg);
                 data.read((char*)&next, sizeof(SequentialBlock));
-                if (next.record.key == key){
+                if (next.record.getPrimaryKey() == key){
                     temp_pos = next.next;
                     next.next = -2;
                     data.seekg(current.next, ios::beg);
                     data.write((char*)&next, sizeof(SequentialBlock));
-                    accessMemSec++;
                 }
             }
             else if (current.next_file == 'A'){
@@ -299,7 +284,6 @@ public:
                     next.next = -2;
                     aux.seekg(current.next, ios::beg);
                     aux.write((char*)&next, sizeof(SequentialBlock));
-                    accessMemSec++;
                 }
             }
 
@@ -309,12 +293,10 @@ public:
                 if (current_file == 'D'){
                     data.seekg(current_pos, ios::beg);
                     data.write((char*)&current, sizeof(SequentialBlock));
-                    accessMemSec++;
                 }
                 else if (current_file == 'A'){
                     aux.seekg(current_pos, ios::beg);
                     aux.write((char*)&current, sizeof(SequentialBlock));
-                    accessMemSec++;
                 }
 
                 data.close();
@@ -365,7 +347,7 @@ public:
         fstream aux(auxfile, ios::in | ios::binary);
         data.seekg(0, ios::end);
         while (aux.read((char*)(&current), sizeof(SequentialBlock))) {
-            if (current.record.getPrimaryKey() == key and current.getPrimaryKey() != -2) {
+            if (current.record.getPrimaryKey() == key and current.next != -2) {
                 res.push_back(current.record);
             }
         }
@@ -374,8 +356,8 @@ public:
     };
 
     template<typename T>
-    vector<Registro> rangeSearch(T begin_key, T end_key){
-        vector<Registro> res;
+    vector<Record> rangeSearch(T begin_key, T end_key){
+        vector<Record> res;
         fstream data(datafile, ios::in | ios::binary);
         SequentialBlock current;
         data.seekg(0, ios::end);
@@ -394,7 +376,17 @@ public:
                 high = mid - 1;
             }
             else{
-                while (current.record.getPrimaryKey() >= begin_key and current.record.getPrimaryKey() <= end_key) {
+                int i = mid;
+                while (current.record.getPrimaryKey() <= end_key) {
+                    if (current.next != -2) {
+                        res.push_back(current.record);
+                    }
+                    data.seekg(i*sizeof(SequentialBlock),ios::beg);
+                    data.read((char*)&current, sizeof(SequentialBlock));
+                    i++;
+                }
+                i=mid;
+                while (current.record.getPrimaryKey() >= begin_key) {
                     if (current.next != -2) {
                         res.push_back(current.record);
                     }
