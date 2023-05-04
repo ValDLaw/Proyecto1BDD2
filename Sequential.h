@@ -6,8 +6,8 @@
 #include <fstream>
 #include <utility>
 #include <vector>
-#include "../Entities/Product.h"
-#include "../Entities/Payment.h"
+#include "Entities/Product.h"
+#include "Entities/Payment.h"
 
 using namespace std;
 const int K = 4;
