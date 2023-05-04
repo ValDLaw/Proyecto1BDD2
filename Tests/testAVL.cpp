@@ -10,7 +10,7 @@ using namespace	std;
 
 void TestProduct(){
   AVL<Product> Arbolito("TestProduct.dat");
-  string direc = "C:\\Users\\hola\\CLionProjects\\ProjectBD\\Datasets\\olist_products_dataset.csv";
+  string direc = "../Datasets/olist_products_dataset.csv";
   ifstream archivo(direc);
   string linea;
 
