@@ -61,6 +61,7 @@ private:
         //Escribimos header
         newData.seekg(0, ios::beg);
         newData.write((char*)&block, sizeof(SequentialBlock));
+        accessMemSec++;
         while (current.next != -1){
             //Si es A o D, vas al nuevo bloque, lo lees,
             //te ubicas en newData y lo escribes
@@ -81,6 +82,7 @@ private:
             }
             newData.seekg(pos_block*sizeof(SequentialBlock), ios::beg);
             newData.write((char*)&block, sizeof(SequentialBlock));
+            accessMemSec++;
         }
 
         this->auxCount = 0;
@@ -114,6 +116,7 @@ public:
             header.next_file = 'D';
             header.record = Registro();
             data.write((char*)&header, sizeof(SequentialBlock));
+            accessMemSec++;
             fstream aux(auxfile, ios::app);
             aux.close();
         }
@@ -227,6 +230,7 @@ public:
             data.seekg(0, ios::end);
             pos = data.tellg();
             data.write((char*)&block, sizeof(SequentialBlock));
+            accessMemSec++;
             current.next = pos;
             current.next_file = 'D';
         }
@@ -234,6 +238,7 @@ public:
             aux.seekg(0, ios::end);
             pos = aux.tellg();
             aux.write((char*)&block, sizeof(SequentialBlock));
+            accessMemSec++;
             auxCount++;
             current.next = pos;
             current.next_file = 'A';
@@ -242,10 +247,12 @@ public:
         if (current_file == 'D'){
             data.seekg(current_pos, ios::beg);
             data.write((char*)&current, sizeof(SequentialBlock));
+            accessMemSec++;
         }
         else if (current_file == 'A'){
             aux.seekg(current_pos, ios::beg);
             aux.write((char*)&current, sizeof(SequentialBlock));
+            accessMemSec++;
         }
         data.close();
         aux.close();
@@ -273,6 +280,7 @@ public:
                     next.next = -2;
                     data.seekg(current.next, ios::beg);
                     data.write((char*)&next, sizeof(SequentialBlock));
+                    accessMemSec++;
                 }
             }
             else if (current.next_file == 'A'){
@@ -283,6 +291,7 @@ public:
                     next.next = -2;
                     aux.seekg(current.next, ios::beg);
                     aux.write((char*)&next, sizeof(SequentialBlock));
+                    accessMemSec++;
                 }
             }
 
@@ -292,10 +301,12 @@ public:
                 if (current_file == 'D'){
                     data.seekg(current_pos, ios::beg);
                     data.write((char*)&current, sizeof(SequentialBlock));
+                    accessMemSec++;
                 }
                 else if (current_file == 'A'){
                     aux.seekg(current_pos, ios::beg);
                     aux.write((char*)&current, sizeof(SequentialBlock));
+                    accessMemSec++;
                 }
 
                 data.close();
