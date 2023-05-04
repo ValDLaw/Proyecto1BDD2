@@ -10,7 +10,7 @@
 #include "Entities/Payment.h"
 
 using namespace std;
-const int K = 40;
+const int K = 1000;
 //Dado que rebuild es O(n)
 //Para version final, conviene hacer tests con K = 100, 500, 1000, 2000, 5000, 10 000
 //dado que nuestra data es de alrededor 100 000 registros para Payments y 30 000 para Products
@@ -45,12 +45,14 @@ private:
         SequentialBlock block;
         data.seekg(0, ios::beg);
         data.read((char*)&current, sizeof(SequentialBlock));
+        accessMemSec++;
 
         long pos_block = 0;
         char current_file = 'D';
 
         data.seekg(0, ios::beg);
         data.read((char*)&block, sizeof(SequentialBlock));
+        accessMemSec++;
         block.next_file = current_file;
         block.next = (pos_block+1)*sizeof(SequentialBlock);
 
@@ -64,9 +66,11 @@ private:
             if (current.next_file == 'D'){
                 data.seekg(current.next, ios::beg);
                 data.read((char*)&block, sizeof(SequentialBlock));
+                accessMemSec++;
             } else if (current.next_file == 'A'){
                 aux.seekg(current.next, ios::beg);
                 aux.read((char*)&block, sizeof(SequentialBlock));
+                accessMemSec++;
             }
 
             pos_block = pos_block + 1;
@@ -113,10 +117,19 @@ public:
             header.next_file = 'D';
             header.record = Record();
             data.write((char*)&header, sizeof(SequentialBlock));
+            accessMemSec++;
             fstream aux(auxfile, ios::app);
             aux.close();
         }
         data.close();
+    }
+
+    int getNumberAccess(){
+        return accessMemSec;
+    }
+
+    void restartNumberAccess(){
+        accessMemSec = 0;
     }
 
     void read(){
@@ -126,6 +139,7 @@ public:
         SequentialBlock block;
         data.seekg(0, ios::beg);
         data.read((char*)&block, sizeof(SequentialBlock));
+        accessMemSec++;
         int pos_actual = 0;
         char current_file = 'D';
         int pos_block;
@@ -149,11 +163,13 @@ public:
                 pos_actual = block.next;
                 aux.seekg(block.next, ios::beg);
                 aux.read((char*)&block, sizeof(SequentialBlock));
+                accessMemSec++;
                 current_file = 'A';
             } else {
                 pos_actual = block.next;
                 data.seekg(block.next, ios::beg);
                 data.read((char*)&block, sizeof(SequentialBlock));
+                accessMemSec++;
                 current_file = 'D';
             }
         }
@@ -179,24 +195,59 @@ public:
             rebuild();
         };
 
-        fstream aux(auxfile, ios::in | ios::out | ios::binary);
+        fstream temp_data(datafile, ios::in | ios::out | ios::binary);
+        SequentialBlock last;
+        temp_data.seekg(0, ios::end);
+        long temp_pos = temp_data.tellg();
+        temp_pos = temp_pos - sizeof(SequentialBlock);
+
+        temp_data.seekg(temp_pos);
+        temp_data.read((char*)&last, sizeof(SequentialBlock));
+        accessMemSec++;
+
+        //AÑADIR A DATA
+        if (last.record.getPrimaryKey() < registro.getPrimaryKey()) {
+            SequentialBlock new_block;
+            new_block.next = last.next;
+            new_block.next_file = last.next_file;
+            new_block.record = registro;
+            temp_data.write((char*)&new_block, sizeof(SequentialBlock));
+            accessMemSec++;
+
+            last.next = temp_pos + sizeof(SequentialBlock);
+            last.next_file = 'D';
+            temp_data.seekp(temp_pos);
+            temp_data.write((char*)&last, sizeof(SequentialBlock));
+            accessMemSec++;
+            temp_data.close();
+            return true;
+        }
+        else{
+            temp_data.close();
+        }
+
+        //AÑADIR A AUX
         fstream data(datafile, ios::in | ios::out | ios::binary);
+        fstream aux(auxfile, ios::in | ios::out | ios::binary);
         long current_pos = 0;
         char current_file = 'D';
 
         SequentialBlock current;
         data.seekg(0, ios::beg);
         data.read((char*)&current, sizeof(SequentialBlock)); //current = header
+        accessMemSec++;
 
         SequentialBlock next;
         while(current.next != -1){
             if (current.next_file == 'D'){
                 data.seekg(current.next, ios::beg);
                 data.read((char*)&next, sizeof(SequentialBlock));
+                accessMemSec++;
             }
             else if (current.next_file == 'A'){
                 aux.seekg(current.next, ios::beg);
                 aux.read((char*)&next, sizeof(SequentialBlock));
+                accessMemSec++;
             }
 
             if (next.record.getPrimaryKey() == registro.getPrimaryKey()){//Si se encuentra el key
@@ -221,30 +272,23 @@ public:
         block.next_file = current.next_file; //reemplazamos al next
         block.record = registro;
 
-        //if current.next = -1 -> último
-        if (current.next == -1){
-            data.seekg(0, ios::end);
-            pos = data.tellg();
-            data.write((char*)&block, sizeof(SequentialBlock));
-            current.next = pos;
-            current.next_file = 'D';
-        }
-        else{
-            aux.seekg(0, ios::end);
-            pos = aux.tellg();
-            aux.write((char*)&block, sizeof(SequentialBlock));
-            auxCount++;
-            current.next = pos;
-            current.next_file = 'A';
-        }
+        aux.seekg(0, ios::end);
+        pos = aux.tellg();
+        aux.write((char*)&block, sizeof(SequentialBlock));
+        accessMemSec++;
+        auxCount++;
+        current.next = pos;
+        current.next_file = 'A';
 
         if (current_file == 'D'){
             data.seekg(current_pos, ios::beg);
             data.write((char*)&current, sizeof(SequentialBlock));
+            accessMemSec++;
         }
         else if (current_file == 'A'){
             aux.seekg(current_pos, ios::beg);
             aux.write((char*)&current, sizeof(SequentialBlock));
+            accessMemSec++;
         }
         data.close();
         aux.close();
@@ -262,27 +306,32 @@ public:
         SequentialBlock current;
         data.seekg(0, ios::beg);
         data.read((char*)&current, sizeof(SequentialBlock)); //current = header
+        accessMemSec++;
 
         SequentialBlock next;
         while(current.next != -1){
             if (current.next_file == 'D'){
                 data.seekg(current.next, ios::beg);
                 data.read((char*)&next, sizeof(SequentialBlock));
+                accessMemSec++;
                 if (next.record.getPrimaryKey() == key){
                     temp_pos = next.next;
                     next.next = -2;
                     data.seekg(current.next, ios::beg);
                     data.write((char*)&next, sizeof(SequentialBlock));
+                    accessMemSec++;
                 }
             }
             else if (current.next_file == 'A'){
                 aux.seekg(current.next, ios::beg);
                 aux.read((char*)&next, sizeof(SequentialBlock));
+                accessMemSec++;
                 if (next.record.getPrimaryKey() == key){
                     temp_pos = next.next;
                     next.next = -2;
                     aux.seekg(current.next, ios::beg);
                     aux.write((char*)&next, sizeof(SequentialBlock));
+                    accessMemSec++;
                 }
             }
 
@@ -292,10 +341,12 @@ public:
                 if (current_file == 'D'){
                     data.seekg(current_pos, ios::beg);
                     data.write((char*)&current, sizeof(SequentialBlock));
+                    accessMemSec++;
                 }
                 else if (current_file == 'A'){
                     aux.seekg(current_pos, ios::beg);
                     aux.write((char*)&current, sizeof(SequentialBlock));
+                    accessMemSec++;
                 }
 
                 data.close();
@@ -316,6 +367,7 @@ public:
         if (this->deletedCount == K){
             rebuild();
         }
+        return false;
     }
 
     template<typename T>
@@ -331,6 +383,7 @@ public:
             int mid = (low + high) / 2;
             data.seekg(mid * sizeof(SequentialBlock),ios::beg);
             data.read((char*)&current, sizeof(SequentialBlock));
+            accessMemSec++;
             if (current.record.getPrimaryKey() == key and current.next != -2) {
                 res.push_back(current.record);
                 data.close();
@@ -346,6 +399,7 @@ public:
         fstream aux(auxfile, ios::in | ios::binary);
         data.seekg(0, ios::end);
         while (aux.read((char*)(&current), sizeof(SequentialBlock))) {
+            accessMemSec++;
             if (current.record.getPrimaryKey() == key and current.next != -2) {
                 res.push_back(current.record);
             }
@@ -367,6 +421,7 @@ public:
             int mid = (low + high) / 2;
             data.seekg(mid * sizeof(SequentialBlock),ios::beg);
             data.read((char*)&current, sizeof(SequentialBlock));
+            accessMemSec++;
 
             if (current.record.getPrimaryKey() < begin_key) {
                 low = mid + 1;
@@ -383,6 +438,7 @@ public:
                     i++;
                     data.seekg(i*sizeof(SequentialBlock),ios::beg);
                     data.read((char*)&current, sizeof(SequentialBlock));
+                    accessMemSec++;
                 }
                 i = mid;
                 while (current.record.getPrimaryKey() >= begin_key) {
@@ -392,6 +448,7 @@ public:
                     i--;
                     data.seekg(i*sizeof(SequentialBlock),ios::beg);
                     data.read((char*)&current, sizeof(SequentialBlock));
+                    accessMemSec++;
                 }
                 low = mid + 1;
                 high = mid - 1;
@@ -403,6 +460,7 @@ public:
         fstream aux(auxfile, ios::in | ios::binary);
         aux.seekg(0, ios::beg);
         while (aux.read((char*)(&current), sizeof(SequentialBlock))) {
+            accessMemSec++;
             if (current.record.getPrimaryKey() >= begin_key and current.record.getPrimaryKey() <= end_key) {
                 if (current.next != -2) {
                     res.push_back(current.record);

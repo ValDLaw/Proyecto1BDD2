@@ -21,7 +21,9 @@ struct IntPayment {
     float payment_value;
     int nextDel;
     char reference;
-    IntPayment() = default;
+    IntPayment(){
+        ID = -1;
+    }
     IntPayment(int ID, int payment_sequential, char payment_type[11], int payment_installments, float payment_value){
         this->ID = ID;
         this->payment_sequential = payment_sequential;
