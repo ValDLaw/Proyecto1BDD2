@@ -137,6 +137,7 @@ vector<Record> search(T key);
 ```
 - **Específica:** Una opción es recorrer el Sequential File por mitades hasta encontrar el valor buscado. La complejidad de este método es O(logn) + O(k), donde k es el tamaño del archivo auxiliar.
 - **Por rango:** Una opción es recorrer el Sequential File por mitades hasta ambos valores, máximo y mínimo.  Se insertan todos los registros entre ambos valores en un vector de Records. La complejidad de este método es O(logn) + O(k), donde k es el tamaño del archivo auxiliar.
+Primero recorremos el datafile utilizando binary search. En caso se encuentre el archivo, se regresa, ya que el key es único. Si no, se procede a buscar en el auxfile con búsqueda lineal. Si se encuentra, se regresa. Si no, al final de revisar todo el archivo se regresa un vector vacío.
 
 ### Análisis comparativo teórico
 Teóricamente, entendemos que las complejidades de las operaciones del AVL File son menores a las del Sequential File. Por ende, es posible plantear como hipótesis que los tiempos de ejecución de las operaciones de búsqueda en el AVL serán mucho menores. No obstante, el uso de un archivo auxiliar para el Sequential File le provee un espacio auxiliar de memoria para que no tenga que realizar tantos accesos a la memoria secundaria, por ende teorizamos que la cantidad de accesos del Sequential File será menor a la del AVL File.
