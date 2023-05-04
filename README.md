@@ -33,7 +33,7 @@ Al desarrollar el gestor de bases de datos, esperamos que sea capaz de seleccion
 - Adicionalmente, agregamos dos clases de Records con la llave principal cambiada de tipo ```char``` a tipo ```int``` para facilitar la operación de búsqueda en las estructuras. Estas clases fueron ```intPayment.h``` y ```intProduct.h```.
 - Las estructuras implementadas utilizaron templates para distinguir entre ambos tipos de Records.
 - Cada Record se ordenó por un atributo que cumplió la función de llave primaria: order_id para la clase Payment y product_id para la clase Product.
-```
+```ruby
 struct Payment {
     char order_id[32];
     int payment_sequential;
@@ -55,7 +55,7 @@ struct Product {
 
 ### AVL File
 En primera instancia, implementamos la estructura del árbol AVL para la organización de registros en forma binaria. Esta clase cuenta con una estructura llamada NodeBT para cada nodo perteneciente al árbol. La característica principal del árbol AVL es que, además de cumplir con las propiedades básicas de un árbol binario, se va rebalanceando con cada inserción u eliminación.
-```
+```ruby
 template<typename Record>
 class AVL {
     struct NodeBT;
@@ -67,7 +67,7 @@ class AVL {
 Una ventaja evidente de usar el AVL para la organización de registros es la complejidad de sus funciones, siendo la búsqueda de carácter O(logn) y la inserción/eliminación también, en su mejor caso, pues requieren de ubicar el registro con anterioridad. No obstante, la constante reconstrucción del árbol supone un costo adicional que podría suponer una desventaja. 
 
 #### Inserción
-```
+```ruby
 void insert(Record record1);
 void insert(fstream &inFile, long NodoActual, long NuevoNodo ,long posParent ,Record record);
 ```
@@ -77,7 +77,7 @@ void insert(fstream &inFile, long NodoActual, long NuevoNodo ,long posParent ,Re
 - Finalmente, se rebalancea el AVL con la función ```balance()``` (O(k\*logn)).
 
 #### Eliminación
-```
+```ruby
 void remove(string value);
 void remove(fstream& File, long NodoActual, long Parent, string value);
 ```
@@ -89,7 +89,7 @@ void remove(fstream& File, long NodoActual, long Parent, string value);
 - Después de cualquier caso, se actualiza la altura del árbol con la función ```updateHeight()``` y se rebalancea el AVL con la función ```balance()``` (O(k\*logn)).
 
 #### Búsqueda
-```
+```ruby
 Record search(char value[32]);
 vector<Record> rangeSearch(char begin_key[32], char end_key[32]);
 ```
@@ -98,7 +98,7 @@ vector<Record> rangeSearch(char begin_key[32], char end_key[32]);
 
 ### Sequential File
 Por otro lado, implementamos la estructura de Sequential File con apoyo de un archivo auxiliar. La clase cuenta con una estructura llamada SequentialBlock para cada bloque de Record + Índice, además de trabajar con dos archivos a la vez: ```datafile``` y ```auxfile```.
-```
+```ruby
 template <typename Record>
 class SequentialFile{
     struct SequentialBlock;
@@ -112,13 +112,13 @@ class SequentialFile{
 Una de las ventajas que ofrece la organización del Sequential File es que mantiene los registros en orden en base a la llave primaria. Su desventaja más clara se encuentra en la complejidad de las operaciones (O(n) en su mayoría). Para la reconstrucción del archivo (rebuild), su complejidad de tiempo es O(nlogn) en el mejor de los casos.
 
 #### Inserción
-```
+```ruby
 bool add(Record registro);
 ```
 Para la inserción de un registro en el Sequential File, su complejidad de tiempo es en promedio O(n/2) ya que se debe encontrar la posición de inserción correcta en el archivo y, luego, mover todos los registros siguientes para hacer espacio para el nuevo registro. En el peor de los casos, la complejidad de tiempo puede ser O(n) si el nuevo registro se inserta al final del archivo.
 
 #### Eliminación
-```
+```ruby
 template<typename T>
 remove(T key);
 ```
@@ -127,7 +127,7 @@ remove(T key);
 - Luego de eso, reescribimos el nodo eliminado y el nodo previo (en "punteros").
 
 #### Búsqueda
-```
+```ruby
 template<typename T>
 vector<Record> search(T key);
 ```
@@ -135,7 +135,7 @@ vector<Record> search(T key);
 - **Por rango:** Una opción es recorrer el Sequential File por mitades hasta ambos valores, máximo y mínimo.  Se insertan todos los registros entre ambos valores en un vector de Records. La complejidad de este método es O(logn) + O(k), donde k es el tamaño del archivo auxiliar.
 
 ### Análisis comparativo teórico
-
+Teóricamente, entendemos que las complejidades de las operaciones del AVL File son menores a las del Sequential File. Por ende, es posible plantear como hipótesis que los tiempos de ejecución de las operaciones de búsqueda en el AVL serán mucho menores. No obstante, el uso de un archivo auxiliar para el Sequential File le provee un espacio auxiliar de memoria para que no tenga que realizar tantos accesos a la memoria secundaria, por ende teorizamos que la cantidad de accesos del Sequential File será menor a la del AVL File.
 
 ### SQL Parser
 
@@ -143,6 +143,22 @@ vector<Record> search(T key);
 ## Resultados experimentales
 ### Cuadros comparativos
 #### Inserción
+| Tiempos de ejecución | AVL File | Sequential File  |
+| ------------- | ------------- | ------------- |
+| 10k datos  | 4358 ms  | 56172 ms |
+| 50k datos | 28882 ms  | 309010 ms |
+| 100k datos | 56397 ms  | 685572 ms |
+
+![image](https://user-images.githubusercontent.com/91209653/236223889-e5044da6-a310-403f-bda1-fa1fa992c9b1.png)
+
+| Memoria secundaria | AVL File | Sequential File  |
+| ------------- | ------------- | ------------- |
+| 10k datos  | 1525157 accesos  | 155751 accesos |
+| 50k datos | 10232968 accesos  | 275751 accesos |
+| 100k datos | 20939560 accesos  | 425751 accesos |
+
+![image](https://user-images.githubusercontent.com/91209653/236223990-c7d95f9a-9c99-483b-a56c-267949deb712.png)
+
 #### Búsqueda
 
 ### Discusión y análisis
