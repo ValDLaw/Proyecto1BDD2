@@ -25,7 +25,7 @@ void paymentTest(vector<Record> data, int size){
     duration = chrono::duration_cast<chrono::nanoseconds>(end-start).count();
     cout <<"SEARCH: " << duration << "nanosegundos" << endl;
 
-    cout << "FINISH TEST "<< data.size() << endl;
+    cout << "FINISH TEST "<< size << endl;
     cout << "----------------------------------------" << endl;
 }
 
