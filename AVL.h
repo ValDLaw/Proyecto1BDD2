@@ -366,32 +366,31 @@ public:
         }
     }
 
-    vector<Record> search(char value[32])
+    vector<Record> search(string value)
     {
         std::ifstream file(this->filename, std::ios::binary);
-//        value.resize(32);
-        vector<Record> res ;
-        vector<Record> result = search(file, root, value, res);
+        value.resize(32);
+        Record result = search(file, root, value);
         file.close();
         return result;
     }
 
-     vector<Record> search(std::ifstream &file, long record_pos,string value, vector<Record> r)
+     vector<Record> search(std::ifstream &file, long record_pos,string value)
     {
         if (record_pos == -1)
             throw "Archivo Vacio";
         else {
             NodeBT temp;
             file.seekg(record_pos);
-            file.read((char*)&temp, sizeof(NodeBT));
-            numberAccesMemory+=1;
-            if ( (value) < (temp.data.getPrimaryKey()))
-                return search(file, temp.left, value, r);
-            else if ((value) > (temp.data.getPrimaryKey()))
-                return search(file, temp.right, value, r);
+            file.read((char*) &temp, sizeof(NodeBT));
+            string i =  (temp.data.getID());
+            i.resize(32);
+            if ((value) < i)
+                return search(file, temp.left, value);
+            else if ((value) > i)
+                return search(file, temp.right, value);
             else
-                r.push_back(temp.data);
-                return  r;
+                return temp.data;
         }
     }
     int getNumberAccess(){
