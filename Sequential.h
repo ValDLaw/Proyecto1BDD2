@@ -373,12 +373,23 @@ public:
                 high = mid - 1;
             }
             else{
-                while (current.record.key >= begin_key and current.record.key <= end_key) {
+                int i = mid;
+                while (current.record.key <= end_key) {
                     if (current.next != -2) {
                         res.push_back(current.record);
                     }
-                    if (data.eof()) break;
+                    data.seekg(i*sizeof(SequentialBlock),ios::beg);
                     data.read((char*)&current, sizeof(SequentialBlock));
+                    i++;
+                }
+                i=mid;
+                while (current.record.key >= begin_key) {
+                    if (current.next != -2) {
+                        res.push_back(current.record);
+                    }
+                    data.seekg(i*sizeof(SequentialBlock),ios::beg);
+                    data.read((char*)&current, sizeof(SequentialBlock));
+                    i--;
                 }
                 low = mid + 1;
                 high = mid - 1;
