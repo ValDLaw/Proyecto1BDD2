@@ -13,7 +13,7 @@
 
 using namespace std;
 
-struct Product {
+struct IntProduct {
 private:
     int ID;
     char product_id[32];
@@ -24,8 +24,8 @@ private:
 public:
     int nextDel;
     char reference;
-    Product() = default;
-    Product(int ID, char product_id[32], char category[50], int product_name_lenght, int product_description_lenght, int product_photos){
+    IntProduct() = default;
+    IntProduct(int ID, char product_id[32], char category[50], int product_name_lenght, int product_description_lenght, int product_photos){
 
         copy_n(product_id, 32, this->product_id);
         copy_n(category, 50, this->category);
@@ -43,11 +43,11 @@ public:
         cout << "Product description     : " << product_description_length << endl;
         cout << "Product photos       : " << product_photos << endl;
     }
-    bool operator < (Product& other){
+    bool operator < (IntProduct& other){
         return strcmp(this->product_id, other.product_id) < 0;
     }
 
-    bool operator == (Product& other){
+    bool operator == (IntProduct& other){
         return strcmp(this->product_id, other.product_id) == 0;
     }
 
