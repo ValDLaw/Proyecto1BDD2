@@ -53,7 +53,7 @@ struct Product {
 ```
 
 ### AVL File
-En primera instancia, implementamos la estructura del árbol AVL para la organización de registros en forma binaria. Esta clase cuenta con una estructura llamada NodeBT para cada nodo perteneciente al árbol. La característica principal del árbol AVL es que, 
+En primera instancia, implementamos la estructura del árbol AVL para la organización de registros en forma binaria. Esta clase cuenta con una estructura llamada NodeBT para cada nodo perteneciente al árbol. La característica principal del árbol AVL es que, además de cumplir con las propiedades básicas de un árbol binario, se va rebalanceando con cada inserción u eliminación.
 ```
 template<typename Record>
 class AVL {
@@ -63,10 +63,30 @@ class AVL {
     int numberAccesMemory = 0;
 };
 ```
-
+Una ventaja evidente de usar el AVL para la organización de registros es la complejidad de sus funciones, siendo la búsqueda de carácter O(logn) y la inserción/eliminación también, en su mejor caso, pues requieren de ubicar el registro con anterioridad. No obstante, la constante reconstrucción del árbol supone un costo adicional que podría suponer una desventaja. 
 
 #### Inserción
+```
+void insert(Record record1);
+void insert(fstream &inFile, long NodoActual, long NuevoNodo ,long posParent ,Record record);
+```
+- Si el archivo de datos se encuentra vacío, se inserta un nuevo nodo en la posición de raíz. Sino, se llama recursivamente a la segunda función ```insert()``` para buscar la posición de inserción.
+- Se inserta el nuevo nodo en la posición encontrada (O(logn)).
+- Una vez insertado el nodo, se actualiza la altura del árbol con la función ```updateHeight()```.
+- Finalmente, se rebalancea el AVL con la función ```balance()``` (O(k\*logn)).
+
 #### Eliminación
+```
+void remove(string value);
+void remove(fstream& File, long NodoActual, long Parent, string value);
+```
+- Se llama recursivamente a la segunda función ```remove()``` para buscar el valor y eliminarlo.
+- Una vez que se encuentra el nodo a eliminar (O(logn)), procedemos a trabajar en los siguientes casos:
+    - Si el nodo es una hoja, se elimina.
+    - Si el nodo tiene un solo hijo, se hace un swap entre ambos y se elimina el que queda como hoja.
+    - Si el nodo tiene dos hijos, se hace un swap entre el padre y el hijo mayor, y se llama nuevamente a ```remove()``` para el padre intercambiado.
+- Después de cualquier caso, se actualiza la altura del árbol con la función ```updateHeight()``` y se rebalancea el AVL con la función ```balance()``` (O(k\*logn)).
+
 #### Búsqueda
 
 ### Sequential File
