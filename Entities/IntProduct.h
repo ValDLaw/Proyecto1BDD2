@@ -101,12 +101,5 @@ public:
 
 };
 
-struct ProductHash{
-    int operator()(const char* key){
-        string str(key);
-        hash<string> myHash;
-        return myHash(str);
-    }
-};
 
 #endif //PROYECTO1BDD2_INTPRODUCT_H
