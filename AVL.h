@@ -325,6 +325,31 @@ public:
         }
         inFile.close();
     }
+    vector<Record> rangeSearch(char  begin_key[32], char  end_key[32]) {
+        numberAccesMemory+=1;
+        std::ifstream file(this->filename, std::ios::binary);
+        vector<Record> res ;
+        vector<Record> result = rangeSearch(file, root, begin_key, end_key , res);
+        file.close();
+        return result;
+    }
+
+    vector<Record> rangeSearch(std::ifstream &file, long record_pos, char begin_key[32], char end_key[32] , vector<Record> r) {
+        if (record_pos == -1)
+            throw "Archivo Vacio";
+        else {
+            NodeBT temp;
+            file.seekg(record_pos);
+            file.read((char*)&temp, sizeof(NodeBT));
+            if ( (begin_key) <= (temp.data.getPrimaryKey()) && (end_key) >= (temp.data.getPrimaryKey()) )
+                r.push_back(temp);
+            if (((begin_key) > (temp.data.getPrimaryKey()) ))
+                return search(file, temp.right, begin_key, end_key, r);
+            if( (begin_key) < (temp.data.getPrimaryKey()))
+                return search(file, temp.left, begin_key, r);
+            return  r;
+        }
+    }
 
     vector<Record> search(char value[32])
     {
