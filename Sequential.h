@@ -384,8 +384,9 @@ public:
                     if (current.next != -2) {
                         res.push_back(current.record);
                     }
-                    if (data.eof()) break;
+                    data.seekg(i*sizeof(SequentialBlock),ios::beg);
                     data.read((char*)&current, sizeof(SequentialBlock));
+                    i--;
                 }
                 low = mid + 1;
                 high = mid - 1;

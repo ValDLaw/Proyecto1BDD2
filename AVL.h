@@ -11,7 +11,6 @@
 #include <fstream>
 using namespace std;
 
-
 template<typename Record>
 class AVL {
 private:
@@ -34,9 +33,9 @@ private:
             height = 0;
         }
     };
-
     long root;
     string filename;
+    int numberAccesMemory = 0;
 
 public:
     explicit AVL(std::string ifilename){
@@ -48,6 +47,7 @@ public:
         int L  = inFile.tellp();
         root = (L ==-1)?-1:0;
         inFile.close();
+        numberAccesMemory = 0;
 
     }
 
@@ -59,6 +59,7 @@ public:
     }
 
     void insert(Record record1) {
+        numberAccesMemory+=1;
         ofstream (filename, std::ofstream::app | std::fstream::binary);
         fstream inFile(filename,  std::ios::binary |  ios::in | ios::out);
         if(!inFile.is_open()){
@@ -80,6 +81,7 @@ public:
     }
 
     void insert(fstream &inFile, long NodoActual, long NuevoNodo ,long posParent ,Record record ){
+        numberAccesMemory+=1;
         if(NodoActual == -1 ){
             NodeBT temp1 = getNode( inFile ,posParent );
             ((record.getPrimaryKey()) < (temp1.data.getPrimaryKey()) ? temp1.left : temp1.right) = NuevoNodo;
@@ -100,6 +102,7 @@ public:
     };
 
     int height( fstream& File , long &node) {
+        numberAccesMemory+=1;
         if (node == -1) {
             return -1;
         }
@@ -109,11 +112,13 @@ public:
     }
 
     int balancingFactor(fstream &File , long Node){
+        numberAccesMemory+=1;
         NodeBT temp = getNode( File , Node);
         return (height(File , temp.left) - height(  File , temp.right));
     }
 
     void change(fstream& File,  long posNode, long right_node, bool flag, bool doubleRotate){
+        numberAccesMemory+=1;
         // true if is leftRotate
         NodeBT h2 = getNode(File, right_node);
         if(this->root == posNode){
@@ -151,6 +156,7 @@ public:
     }
 
     void leftRota(fstream &File, long  posNode, bool doubleRotate){
+        numberAccesMemory+=1;
         NodeBT Node = getNode(File, posNode);
         long right_node = Node.right;
         NodeBT NodeRight = getNode( File , right_node);
@@ -171,6 +177,7 @@ public:
     }
 
     void rightRota( fstream &File ,long posNode, bool doubleRotate){
+        numberAccesMemory+=1;
 
         NodeBT Node = getNode(File, posNode);
         long left_node = Node.left;
@@ -192,6 +199,7 @@ public:
     }
 
     void balance( fstream &File, long &Node){
+        numberAccesMemory+=1;
         int  i = balancingFactor(File, Node);
         NodeBT dataNode = getNode( File , Node);
         if(i >= 2){
@@ -209,6 +217,7 @@ public:
 
 
     void updateHeight( fstream &inFile , long pos) {
+        numberAccesMemory+=1;
         if (pos == -1) {
             return ;
         }
@@ -222,6 +231,7 @@ public:
 
 
     void remove(string value){
+        numberAccesMemory+=1;
         ofstream (filename, std::ofstream::app | std::fstream::binary);
         fstream inFile(filename,  std::ios::binary |  ios::in | ios::out);
         if(!inFile.is_open()){
@@ -232,6 +242,7 @@ public:
     }
 
     void remove(fstream& File, long NodoActual, long Parent, string value) {
+        numberAccesMemory+=1;
         NodeBT node = getNode(File, NodoActual);
         if(NodoActual == -1){
             return;
@@ -293,6 +304,7 @@ public:
     }
 
     string maxValue(fstream &File, long NodoActual ){
+        numberAccesMemory+=1;
         NodeBT nodo = getNode(File, NodoActual);
         if(NodoActual == -1){
             throw invalid_argument("Esta Vacio");
@@ -304,6 +316,7 @@ public:
     }
 
     void scanAll(){
+        numberAccesMemory+=1;
         fstream inFile(filename, std::ios::in  | std::ios::binary);
         inFile.seekg(0);
         if(!inFile.is_open()){ cout << "NO ABIERTO" << endl;}
@@ -321,17 +334,20 @@ public:
         inFile.close();
     }
 
-    Record search(string value)
+    vector<Record> search(char value[32])
     {
+        numberAccesMemory+=1;
         std::ifstream file(this->filename, std::ios::binary);
-        value.resize(32);
-        Record result = search(file, root, value);
+//        value.resize(32);
+        vector<Record> res ;
+        vector<Record> result = search(file, root, value, res);
         file.close();
         return result;
     }
 
-     Record search(std::ifstream &file, long record_pos,string value)
+     vector<Record> search(std::ifstream &file, long record_pos,string value, vector<Record> r)
     {
+        numberAccesMemory+=1;
         if (record_pos == -1)
             throw "Archivo Vacio";
         else {
@@ -339,14 +355,18 @@ public:
             file.seekg(record_pos);
             file.read((char*)&temp, sizeof(NodeBT));
             if ( (value) < (temp.data.getPrimaryKey()))
-                return search(file, temp.left, value);
+                return search(file, temp.left, value, r);
             else if ((value) > (temp.data.getPrimaryKey()))
-                return search(file, temp.right, value);
+                return search(file, temp.right, value, r);
             else
-                return temp.data;
+                r.push_back(temp.data);
+                return  r;
         }
     }
+    int getNumberAccess(){
+        return numberAccesMemory;
 
+    }
 };
 
 #endif //PROYECTO1BDD2_AVL_H
