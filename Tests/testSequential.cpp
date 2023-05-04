@@ -5,8 +5,8 @@
 template<typename Record=Payment>
 void paymentTest(vector<Record> data){
     cout << "----------------------------------------" << endl;
-    cout << "START TEST " << data.size() << "- Sequential" << endl;
-    SequentialFile<string> seqFile("../SQ_test_data.dat", "../SQ_test_aux.dat");
+    cout << "START TEST " << data.size() << endl;
+    SequentialFile<Record> seqFile("../SQ_test_data.dat", "../SQ_test_aux.dat");
 
     // INSERT
     auto start  = chrono::steady_clock::now();
@@ -25,13 +25,16 @@ void paymentTest(vector<Record> data){
     duration = chrono::duration_cast<chrono::milliseconds>(end-start).count();
     cout <<"SEARCH: " << duration << endl;
 
-    cout << "FINISH TEST "<< data.size() <<" - Sequential" << endl;
+    cout << "FINISH TEST "<< data.size() << endl;
     cout << "----------------------------------------" << endl;
 }
 
 void tests(){
     vector<Payment> payments = readPayments("../Datasets/olist_order_payments_dataset.csv");
-    for (auto p:payments){
-        cout << p.getID() << endl;
-    }
+    vector<Payment> payment_10k(payments.begin(), payments.begin() + 10000);
+    vector<Payment> payment_50k(payments.begin(), payments.begin() + 50000);
+    vector<Payment> payment_100k(payments.begin(), payments.begin() + 100000);
+    paymentTest(payment_10k);
+    paymentTest(payment_50k);
+    paymentTest(payment_100k);
 }
