@@ -1,4 +1,4 @@
-#include "Entities/IntPayment.h"
+#include "../Entities/IntPayment.h"
 #include <vector>
 
 vector<Payment> readPayments(string filename){
