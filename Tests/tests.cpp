@@ -1,5 +1,5 @@
-#include <Entities/Payment.h>
-#include <Entities/Product.h>
+#include "../Entities/Payment.h"
+#include "../Entities/Product.h"
 
 
 vector<Payment> readPayments(string filename){
