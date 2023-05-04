@@ -406,7 +406,6 @@ public:
             if (current.record.getPrimaryKey() >= begin_key and current.record.getPrimaryKey() <= end_key) {
                 if (current.next != -2) {
                     res.push_back(current.record);
-                    cout << current.record.getPrimaryKey() << endl;
                 }
             }
         }
