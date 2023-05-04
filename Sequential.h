@@ -267,6 +267,7 @@ public:
         return true;
     }
 
+    template<typename T>
     bool remove(T key){
         fstream aux(auxfile, ios::in | ios::out | ios::binary);
         fstream data(datafile, ios::in | ios::out | ios::binary);
@@ -336,6 +337,7 @@ public:
         }
     }
 
+    template<typename T>
     vector<Record> search(T key){
         vector<Record> res;
         fstream data(datafile, ios::in | ios::binary);
@@ -371,6 +373,7 @@ public:
         return res;
     };
 
+    template<typename T>
     vector<Registro> rangeSearch(T begin_key, T end_key){
         vector<Registro> res;
         fstream data(datafile, ios::in | ios::binary);

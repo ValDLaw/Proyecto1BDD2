@@ -6,7 +6,7 @@ template<typename Record=Payment>
 void paymentTest(vector<Record> data){
     cout << "----------------------------------------" << endl;
     cout << "START TEST " << data.size() << endl;
-    SequentialFile<string> seqFile("../SQ_test_data.dat", "../SQ_test_aux.dat");
+    SequentialFile<Record> seqFile("../SQ_test_data.dat", "../SQ_test_aux.dat");
 
     // INSERT
     auto start  = chrono::steady_clock::now();
