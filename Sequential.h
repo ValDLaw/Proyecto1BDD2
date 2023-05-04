@@ -6,8 +6,8 @@
 #include <fstream>
 #include <utility>
 #include <vector>
-#include "../Entities/Product.h"
-#include "../Entities/Payment.h"
+#include "Entities/Product.h"
+#include "Entities/Payment.h"
 
 using namespace std;
 const int K = 4;
@@ -113,7 +113,6 @@ public:
             header.next_file = 'D';
             header.record = Record();
             data.write((char*)&header, sizeof(SequentialBlock));
-            accessMemSec++;
             fstream aux(auxfile, ios::app);
             aux.close();
         }

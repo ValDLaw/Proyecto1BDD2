@@ -1,9 +1,9 @@
 //
-// Created by Valeria Espinoza Tarazona on 3/05/23.
+// Created by Valeria Espinoza Tarazona on 4/05/23.
 //
 
-#ifndef PROYECTO1BDD2_PAYMENT_H
-#define PROYECTO1BDD2_PAYMENT_H
+#ifndef PROYECTO1BDD2_INTPAYMENT_H
+#define PROYECTO1BDD2_INTPAYMENT_H
 
 #include <iostream>
 #include <fstream>
@@ -14,6 +14,7 @@
 using namespace std;
 
 struct Payment {
+    int ID;
     char order_id[32];
     int payment_sequential;
     char payment_type[11];
@@ -22,8 +23,9 @@ struct Payment {
     int nextDel;
     char reference;
     Payment() = default;
-    Payment(char order_id[32], int payment_sequential, char payment_type[11], int payment_installments, float payment_value){
+    Payment(int ID, char order_id[32], int payment_sequential, char payment_type[11], int payment_installments, float payment_value){
         copy_n(order_id, 32, this->order_id);
+        this->ID = ID;
         this->payment_sequential = payment_sequential;
         copy_n(payment_type, 11, this->payment_type);
         this->payment_installments = payment_installments;
@@ -31,6 +33,7 @@ struct Payment {
         this->nextDel = 0;
     }
     void showData(){
+        cout << "ID      : " << ID << endl;
         cout << "Order ID      : " << order_id << endl;
         cout << "Payment sequential      : " << payment_sequential << endl;
         cout << "Payment type   : " << payment_type << endl;
@@ -42,8 +45,8 @@ struct Payment {
         return strcmp(this->order_id, other.order_id) == 0;
     }
 
-    const char *getPrimaryKey() const {
-        return order_id;
+    int getPrimaryKey() const {
+        return ID;
     }
 
 
@@ -51,23 +54,7 @@ struct Payment {
         return strcmp(this->order_id, key) == 0;
     }
 
-    bool lessThanToKey(const char* key){
-        return strcmp(this->order_id, key) < 0;
-    }
-
-    bool greaterThanToKey(const char* key){
-        return strcmp(this->order_id, key) > 0;
-    }
-
-    bool lessThanOrEqualToKey(const char* key){
-        return strcmp(this->order_id, key) <= 0;
-    }
-
-    bool greaterThanOrEqualToKey(const char* key){
-        return strcmp(this->order_id, key) >= 0;
-    }
-
-    string getID()const {
+    string getOrderID()const {
         return this->order_id;
     }
 
@@ -87,7 +74,7 @@ struct Payment {
         return this->payment_value;
     }
 
-    void setID(string id){
+    void setOrderID(string id){
         strcmp(this->order_id, id.c_str());
     }
 
@@ -108,6 +95,7 @@ struct Payment {
     }
 
     friend ostream& operator<<(ostream& os, const Payment& pago) {
+        os << "ID: " << pago.ID << endl;
         os << "Order ID: " << pago.order_id << endl;
         os << "Payment Sequential: " << pago.payment_sequential << endl;
         os << "Payment Type: " << pago.payment_type << endl;
@@ -127,4 +115,4 @@ struct PaymentHash{
     }
 };
 
-#endif //PROYECTO1BDD2_PAYMENT_H
+#endif //PROYECTO1BDD2_INTPAYMENT_H
