@@ -59,22 +59,6 @@ public:
         return strcmp(this->product_id, key) == 0;
     }
 
-    bool lessThanToKey(const char* key){
-        return strcmp(this->product_id, key) < 0;
-    }
-
-    bool greaterThanToKey(const char* key){
-        return strcmp(this->product_id, key) > 0;
-    }
-
-    bool lessThanOrEqualToKey(const char* key){
-        return strcmp(this->product_id, key) <= 0;
-    }
-
-    bool greaterThanOrEqualToKey(const char* key){
-        return strcmp(this->product_id, key) >= 0;
-    }
-
     string getProductID()const {
         return this->product_id;
     }
