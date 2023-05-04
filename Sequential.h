@@ -195,9 +195,8 @@ public:
             rebuild();
         };
 
-        fstream temp_data(datafile, ios::in | ios::out | ios::binary);
+        fstream temp_data(datafile, ios::ate | ios::in | ios::out | ios::binary);
         SequentialBlock last;
-        temp_data.seekg(0, ios::end);
         long temp_pos = temp_data.tellg();
         temp_pos = temp_pos - sizeof(SequentialBlock);
 
