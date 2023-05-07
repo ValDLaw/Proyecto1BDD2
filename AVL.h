@@ -84,7 +84,7 @@ public:
     void insert(fstream &inFile, long NodoActual, long NuevoNodo ,long posParent ,Record record ){
         if(NodoActual == -1 ){
             NodeBT temp1 = getNode( inFile ,posParent );
-            ((record.getPrimaryKey()) < (temp1.data.getPrimaryKey()) ? temp1.left : temp1.right) = NuevoNodo;
+            ((record.getID()) < (temp1.data.getID()) ? temp1.left : temp1.right) = NuevoNodo;
             inFile.seekp(posParent);
             inFile.write((char*)& temp1, sizeof (temp1));
             numberAccesMemory+=1;
@@ -92,7 +92,7 @@ public:
         }
         else {
             NodeBT temp = getNode(inFile ,NodoActual);
-            if((record.getPrimaryKey()) < (temp.data.getPrimaryKey())){
+            if((record.getID()) < (temp.data.getID())){
                 insert(inFile, temp.left , NuevoNodo, NodoActual, record);
             }else{
                 insert(inFile, temp.right, NuevoNodo, NodoActual , record);
@@ -248,11 +248,11 @@ public:
         if(NodoActual == -1){
             return;
         }
-        else if((value) < (node.data.getPrimaryKey()) ){
+        else if((value) < (node.data.getID()) ){
             remove(File, node.left , NodoActual , value);
             updateHeight(File, NodoActual);
             balance(File, NodoActual);
-        }else if((value) > (node.data.getPrimaryKey()) ){
+        }else if((value) > (node.data.getID()) ){
             remove(File, node.right , NodoActual, value);
             updateHeight(File, NodoActual);
             balance(File, NodoActual);
@@ -302,7 +302,7 @@ public:
                 temp.resize(32);
                 char dat[32];
                 strcpy(dat, temp.c_str());
-                node.data.getPrimaryKey() = dat;
+                node.data.getID() = dat;
                 File.seekp(NodoActual);
                 File.write((char*)& node, sizeof(node) );
                 numberAccesMemory+=1;
@@ -316,7 +316,7 @@ public:
         if(NodoActual == -1){
             throw invalid_argument("Esta Vacio");
         }else if(nodo.right == -1){
-            return nodo.data.getPrimaryKey();
+            return nodo.data.getID();
         }else{
             return maxValue(File, nodo.right);
         }
@@ -356,11 +356,11 @@ public:
             NodeBT temp;
             file.seekg(record_pos);
             file.read((char*)&temp, sizeof(NodeBT));
-            if ( (begin_key) <= (temp.data.getPrimaryKey()) && (end_key) >= (temp.data.getPrimaryKey()) )
+            if ( (begin_key) <= (temp.data.getID()) && (end_key) >= (temp.data.getID()) )
                 r.push_back(temp);
-            if (((begin_key) > (temp.data.getPrimaryKey()) ))
+            if (((begin_key) > (temp.data.getID()) ))
                 return search(file, temp.right, begin_key, end_key, r);
-            if( (begin_key) < (temp.data.getPrimaryKey()))
+            if( (begin_key) < (temp.data.getID()))
                 return search(file, temp.left, begin_key, r);
             return  r;
         }
