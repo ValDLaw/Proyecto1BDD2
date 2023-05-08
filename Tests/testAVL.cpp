@@ -1,14 +1,13 @@
 #include <iostream>
 #include <vector>
-#include "../Entities/Payment.h"
 #include "../AVL.h"
-#include "../Tests/tests.cpp"
+
 #include <chrono>
 
 
 using namespace	std;
 
-template<typename Record=IntPayment>
+template<typename Record=Payment>
 void paymentTest(vector<Record> data, int size){
     cout << "----------------------------------------" << endl;
     cout << "START TEST " << size << endl;

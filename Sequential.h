@@ -6,8 +6,8 @@
 #include <fstream>
 #include <utility>
 #include <vector>
-#include "Entities/Product.h"
-#include "Entities/Payment.h"
+#include "Entities/IntProduct.h"
+#include "Entities/IntPayment.h"
 
 using namespace std;
 const int K = 1000;
@@ -106,8 +106,8 @@ private:
 
 public:
     SequentialFile(string d, string a){
-        datafile = move(d);
-        auxfile = move(a);
+        datafile = std::move(d);
+        auxfile = std::move(a);
         fstream data(datafile, ios::app);
         data.seekg(0, ios::end);
         if (data.tellg() == 0){ //if file empty

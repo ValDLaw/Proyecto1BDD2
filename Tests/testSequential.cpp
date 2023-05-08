@@ -39,5 +39,7 @@ void paymentTest(vector<Record> data, int size){
 
 void tests(){
     vector<IntPayment> payments = readIntPayments("../Datasets/olist_order_int_payments_dataset.csv");
+    paymentTest(payments, 10000);
     paymentTest(payments, 50000);
+    paymentTest(payments, 100000);
 }

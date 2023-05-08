@@ -1,3 +1,4 @@
+#include "../Entities/Payment.h"
 #include "../Entities/IntPayment.h"
 #include <vector>
 

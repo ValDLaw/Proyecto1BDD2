@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cstring>
 #include <fstream>
+
 using namespace std;
 
 template<typename Record>
