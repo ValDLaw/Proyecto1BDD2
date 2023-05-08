@@ -115,6 +115,10 @@ Una de las ventajas que ofrece la organización del Sequential File es que manti
 ```ruby
 bool add(Record registro);
 ```
+- En caso haya una cantidad k en el auxfile, se hace ```rebuild()```. Caso contrario, empezamos leyendo el último Sequential Block del datafile. Si su key es menor que el key del registro que queremos insertar, colocamos el nuevo registro al final del datafile y actualizamos los punteros correspondientes.
+- Si esto no ocurre, se recorre los punteros del archivo tanto en datafile como auxfile hasta encontrar la posición donde debería insertarse. Se modifican los punteros correspondiente e insertamos el nuevo registro al final del auxfile.
+- En caso el valor esté repetido, se regresa False.
+
 Para la inserción de un registro en el Sequential File, su complejidad de tiempo es en promedio O(n/2) ya que se debe encontrar la posición de inserción correcta en el archivo y, luego, mover todos los registros siguientes para hacer espacio para el nuevo registro. En el peor de los casos, la complejidad de tiempo puede ser O(n) si el nuevo registro se inserta al final del archivo.
 
 #### Eliminación
@@ -122,9 +126,9 @@ Para la inserción de un registro en el Sequential File, su complejidad de tiemp
 template<typename T>
 remove(T key);
 ```
-- Se recorre el datafile y el auxfile utilizando los punteros hasta ubicar el valor exacto. 
+- Se recorre el datafile y el auxfile utilizando punteros hasta ubicar el valor exacto. 
 - En caso se encuentre el key, cambiamos los punteros de su anterior, y el puntero del record eliminado será -2.
-- Luego de eso, reescribimos el nodo eliminado y el nodo previo (en "punteros").
+- Luego de eso, se reescribe el nodo eliminado y el nodo previo (en "punteros").
 
 #### Búsqueda
 ```ruby
@@ -133,6 +137,7 @@ vector<Record> search(T key);
 ```
 - **Específica:** Una opción es recorrer el Sequential File por mitades hasta encontrar el valor buscado. La complejidad de este método es O(logn) + O(k), donde k es el tamaño del archivo auxiliar.
 - **Por rango:** Una opción es recorrer el Sequential File por mitades hasta ambos valores, máximo y mínimo.  Se insertan todos los registros entre ambos valores en un vector de Records. La complejidad de este método es O(logn) + O(k), donde k es el tamaño del archivo auxiliar.
+Primero recorremos el datafile utilizando binary search. En caso se encuentre el archivo, se regresa, ya que el key es único. Si no, se procede a buscar en el auxfile con búsqueda lineal. Si se encuentra, se regresa. Si no, al final de revisar todo el archivo se regresa un vector vacío.
 
 ### Análisis comparativo teórico
 Teóricamente, entendemos que las complejidades de las operaciones del AVL File son menores a las del Sequential File. Por ende, es posible plantear como hipótesis que los tiempos de ejecución de las operaciones de búsqueda en el AVL serán mucho menores. No obstante, el uso de un archivo auxiliar para el Sequential File le provee un espacio auxiliar de memoria para que no tenga que realizar tantos accesos a la memoria secundaria, por ende teorizamos que la cantidad de accesos del Sequential File será menor a la del AVL File.

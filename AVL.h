@@ -85,7 +85,7 @@ public:
     void insert(fstream &inFile, long NodoActual, long NuevoNodo ,long posParent ,Record record ){
         if(NodoActual == -1 ){
             NodeBT temp1 = getNode( inFile ,posParent );
-            ((record.getPrimaryKey()) < (temp1.data.getPrimaryKey()) ? temp1.left : temp1.right) = NuevoNodo;
+            ((record.getID()) < (temp1.data.getID()) ? temp1.left : temp1.right) = NuevoNodo;
             inFile.seekp(posParent);
             inFile.write((char*)& temp1, sizeof (temp1));
             numberAccesMemory+=1;
@@ -93,7 +93,7 @@ public:
         }
         else {
             NodeBT temp = getNode(inFile ,NodoActual);
-            if((record.getPrimaryKey()) < (temp.data.getPrimaryKey())){
+            if((record.getID()) < (temp.data.getID())){
                 insert(inFile, temp.left , NuevoNodo, NodoActual, record);
             }else{
                 insert(inFile, temp.right, NuevoNodo, NodoActual , record);
@@ -249,11 +249,11 @@ public:
         if(NodoActual == -1){
             return;
         }
-        else if((value) < (node.data.getPrimaryKey()) ){
+        else if((value) < (node.data.getID()) ){
             remove(File, node.left , NodoActual , value);
             updateHeight(File, NodoActual);
             balance(File, NodoActual);
-        }else if((value) > (node.data.getPrimaryKey()) ){
+        }else if((value) > (node.data.getID()) ){
             remove(File, node.right , NodoActual, value);
             updateHeight(File, NodoActual);
             balance(File, NodoActual);
@@ -303,7 +303,7 @@ public:
                 temp.resize(32);
                 char dat[32];
                 strcpy(dat, temp.c_str());
-                node.data.getPrimaryKey() = dat;
+                node.data.getID() = dat;
                 File.seekp(NodoActual);
                 File.write((char*)& node, sizeof(node) );
                 numberAccesMemory+=1;
@@ -317,7 +317,7 @@ public:
         if(NodoActual == -1){
             throw invalid_argument("Esta Vacio");
         }else if(nodo.right == -1){
-            return nodo.data.getPrimaryKey();
+            return nodo.data.getID();
         }else{
             return maxValue(File, nodo.right);
         }
@@ -341,58 +341,56 @@ public:
         }
         inFile.close();
     }
-    vector<Record> rangeSearch(char  begin_key[32], char  end_key[32]) {
+        vector<Record> rangeSearch(string  begin_key, string end_key) {
         numberAccesMemory+=1;
-        std::ifstream file(this->filename, std::ios::binary);
+        std::fstream file(this->filename, std::ios::binary | ios::in);
         vector<Record> res ;
-        vector<Record> result = rangeSearch(file, root, begin_key, end_key , res);
+        rangeSearch2(file, root, begin_key, end_key , res);
         file.close();
-        return result;
+        return res;
     }
 
-    vector<Record> rangeSearch(std::ifstream &file, long record_pos, char begin_key[32], char end_key[32] , vector<Record> r) {
-        if (record_pos == -1)
-            throw "Archivo Vacio";
-        else {
-            NodeBT temp;
-            file.seekg(record_pos);
-            file.read((char*)&temp, sizeof(NodeBT));
-            if ( (begin_key) <= (temp.data.getPrimaryKey()) && (end_key) >= (temp.data.getPrimaryKey()) )
-                r.push_back(temp);
-            if (((begin_key) > (temp.data.getPrimaryKey()) ))
-                return search(file, temp.right, begin_key, end_key, r);
-            if( (begin_key) < (temp.data.getPrimaryKey()))
-                return search(file, temp.left, begin_key, r);
-            return  r;
+    void rangeSearch2(std::fstream &file, long record_pos, string begin_key, string end_key , vector<Record> &r) {
+        if (record_pos == -1) {
+            return;
+        }
+        NodeBT temp = getNode(file,record_pos);
+        if ((temp.data.getID()) >= (begin_key) && (temp.data.getID()) <= (end_key) ) {
+            r.push_back(temp.data);
+        }
+        if ( (temp.data.getID()) > (begin_key)) {
+            return rangeSearch2(file, temp.left, begin_key, end_key, r);
+        }
+        if( (temp.data.getID()) < (end_key) ) {
+            return rangeSearch2(file, temp.right, begin_key, end_key, r);
         }
     }
 
-    vector<Record> search(char value[32])
+    vector<Record> search(string value)
     {
         std::ifstream file(this->filename, std::ios::binary);
-//        value.resize(32);
-        vector<Record> res ;
-        vector<Record> result = search(file, root, value, res);
+        value.resize(32);
+        Record result = search(file, root, value);
         file.close();
         return result;
     }
 
-     vector<Record> search(std::ifstream &file, long record_pos,string value, vector<Record> r)
+     vector<Record> search(std::ifstream &file, long record_pos,string value)
     {
         if (record_pos == -1)
             throw "Archivo Vacio";
         else {
             NodeBT temp;
             file.seekg(record_pos);
-            file.read((char*)&temp, sizeof(NodeBT));
-            numberAccesMemory+=1;
-            if ( (value) < (temp.data.getPrimaryKey()))
-                return search(file, temp.left, value, r);
-            else if ((value) > (temp.data.getPrimaryKey()))
-                return search(file, temp.right, value, r);
+            file.read((char*) &temp, sizeof(NodeBT));
+            string i =  (temp.data.getID());
+            i.resize(32);
+            if ((value) < i)
+                return search(file, temp.left, value);
+            else if ((value) > i)
+                return search(file, temp.right, value);
             else
-                r.push_back(temp.data);
-                return  r;
+                return temp.data;
         }
     }
     int getNumberAccess(){
