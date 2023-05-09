@@ -13,7 +13,6 @@ vector<Payment> readPayments(string filename){
 
     while (getline(archivo, linea)) {
         istringstream ss(linea);
-        cout << linea;
         string order_id, payment_type;
         int payment_sequential, payment_installments;
         float payment_value;
@@ -30,6 +29,7 @@ vector<Payment> readPayments(string filename){
         ss >> payment_value;
 
         Payment pago(cstr, payment_sequential, ctr, payment_installments, payment_value);
+        pago.showData();
         payments.push_back(pago);
     }
     return payments;
@@ -57,14 +57,16 @@ vector<IntPayment> readIntPayments(string filename){
         ss >> payment_sequential;
         ss.ignore();
         getline(ss, payment_type, ',');
-
-        std::strcpy(ctr, payment_type.c_str());
+        std::strncpy(ctr, payment_type.c_str(), sizeof(ctr) - 1);
+        ctr[sizeof(ctr) - 1] = '\0'; // ensure null-termination
         ss >> payment_installments;
         ss.ignore();
         ss >> payment_value;
 
         IntPayment pago(id, payment_sequential, ctr, payment_installments, payment_value);
+        pago.showData();
         payments.push_back(pago);
     }
     return payments;
 }
+
