@@ -185,38 +185,38 @@ Teóricamente, entendemos que las complejidades de las operaciones del AVL File 
 ## Resultados experimentales
 ### Cuadros comparativos
 #### Inserción
-| Tiempos de ejecución | AVL File | Sequential File  |
-| ------------- | ------------- | ------------- |
-| 10k datos  | 4358 ms  | 56172 ms |
-| 50k datos | 28882 ms  | 309010 ms |
-| 100k datos | 56397 ms  | 685572 ms |
+| Tiempos de ejecución | AVL File | Sequential File | Hash File |
+| ------------- | ------------- | ------------- | ------------- |
+| 10k datos  | 4358 ms  | 56172 ms | 69487 ms |
+| 50k datos | 28882 ms  | 309010 ms | 277877 ms |
+| 100k datos | 56397 ms  | 685572 ms | 341957 ms |
 
-![image](https://github.com/ValDLaw/Proyecto1BDD2/assets/91209653/bc4fc299-9b56-4731-846a-920e4fa0e1d6)
+![image](https://github.com/ValDLaw/Proyecto1BDD2/assets/91209653/1e3f3416-7c55-4e3a-bdc4-75025ee77df5)
 
-| Memoria secundaria | AVL File | Sequential File  |
-| ------------- | ------------- | ------------- |
-| 10k datos  | 1525157 accesos  | 155751 accesos |
-| 50k datos | 10232968 accesos  | 275751 accesos |
-| 100k datos | 20939560 accesos  | 425751 accesos |
+| Memoria secundaria | AVL File | Sequential File | Hash File |
+| ------------- | ------------- | ------------- | ------------- |
+| 10k datos  | 1525157 accesos  | 155751 accesos | 69970 accesos |
+| 50k datos | 10232968 accesos  | 275751 accesos | 349970 accesos |
+| 100k datos | 20939560 accesos  | 425751 accesos | 699970 accesos |
 
-![image](https://github.com/ValDLaw/Proyecto1BDD2/assets/91209653/5f448a05-5090-4847-9945-49e2c3cfaddc)
+![image](https://github.com/ValDLaw/Proyecto1BDD2/assets/91209653/2071cc6a-a35d-424a-8a48-02ba3b5198a3)
 
 #### Búsqueda
-| Tiempos de ejecución | AVL File | Sequential File  |
-| ------------- | ------------- | ------------- |
-| 10k datos  | 577 µs  | 131 µs |
-| 50k datos | 514 µs  | 382 µs |
-| 100k datos | 1411 µs  | 185 µs |
+| Tiempos de ejecución | AVL File | Sequential File | Hash File |
+| ------------- | ------------- | ------------- | ------------- |
+| 10k datos  | 577 µs  | 131 µs | 74058 µs |
+| 50k datos | 514 µs  | 382 µs | 218244 µs |
+| 100k datos | 1411 µs  | 185 µs | 386692 µs |
 
-![image](https://github.com/ValDLaw/Proyecto1BDD2/assets/91209653/5962f897-1586-49ec-9da9-a359ab939101)
+![image](https://github.com/ValDLaw/Proyecto1BDD2/assets/91209653/57f71381-db47-4fb9-871e-c30473f42824)
 
-| Memoria secundaria | AVL File | Sequential File  |
-| ------------- | ------------- | ------------- |
-| 10k datos  | 1226466 accesos  | 12 accesos |
-| 50k datos | 7211248 accesos  | 15 accesos |
-| 100k datos | 15304605 accesos  | 14 accesos |
+| Memoria secundaria | AVL File | Sequential File | Hash File |
+| ------------- | ------------- | ------------- | ------------- |
+| 10k datos  | 1226466 accesos  | 12 accesos | 324 accesos |
+| 50k datos | 7211248 accesos  | 15 accesos | 1578 accesos |
+| 100k datos | 15304605 accesos  | 14 accesos | 3148 accesos |
 
-![image](https://github.com/ValDLaw/Proyecto1BDD2/assets/91209653/ef91743e-d944-46aa-b437-d6009926c362)
+![image](https://github.com/ValDLaw/Proyecto1BDD2/assets/91209653/757b1a7e-450f-495a-b425-f78b0aa7d1b7)
 
 ### Discusión y análisis
 
