@@ -86,7 +86,7 @@ void remove(fstream& File, long NodoActual, long Parent, string value);
     - Si el nodo es una hoja, se elimina.
     - Si el nodo tiene un solo hijo, se hace un swap entre ambos y se elimina el que queda como hoja.
     - Si el nodo tiene dos hijos, se hace un swap entre el padre y el hijo mayor, y se llama nuevamente a ```remove()``` para el padre intercambiado.
-- Después de cualquier caso, se actualiza la altura del árbol con la función ```updateHeight()``` y se rebalancea el AVL con la función ```balance()``` (O(k\*logn)).
+- Después de cualquier caso, se actualiza la altura del árbol con la función ```updateHeight()``` y se rebalancea el AVL con la función ```balance()``` (O(k\*logn), donde k representa el número de hijos debajo).
 
 #### Búsqueda
 ```ruby
@@ -171,13 +171,34 @@ class HashIndex{
 ```
 
 #### Inserción
+```ruby
+void insert(Record record);
+```
+- Se lee la llave y la codifica usando la función hash para obtener el valor del módulo.
+- Luego de ubicarse en la posición del array, se lee el registro y se verifica si hay espacio o no al final del bucket.
+- Si hay espacio, se añade el registro al final del bucket.
+- Si no hay espacio, se llama a la función ```split()```:
+```ruby
+void split(Record& record, int height, int currentNodePosition, TreeNode& currentNode, int currentBucketPosition, Bucketcito& bucket);
+```
+La función ```split()``` se encarga de crear el nuevo bucket que estará enlazado al anterior, copia el contenido y añade el registro en el nuevo bucket.
 
 #### Eliminación
 
 #### Búsqueda
 
 ### Análisis comparativo teórico
-Teóricamente, entendemos que las complejidades de las operaciones del AVL File son menores a las del Sequential File. Por ende, es posible plantear como hipótesis que los tiempos de ejecución de las operaciones de búsqueda en el AVL serán mucho menores. No obstante, el uso de un archivo auxiliar para el Sequential File le provee un espacio auxiliar de memoria para que no tenga que realizar tantos accesos a la memoria secundaria, por ende teorizamos que la cantidad de accesos del Sequential File será menor a la del AVL File.
+Teóricamente, entendemos que las complejidades de las operaciones del AVL File son menores a las del Sequential File. Por ende, es posible plantear como hipótesis que los tiempos de ejecución de las operaciones de búsqueda en el AVL serán mucho menores. Por otro lado, el Extendible Hash tiene una menor complejidad en la operación de inserción, pero mayor en la operación de búsqueda (su peor caso depende del tamaño del bucket). No obstante, el uso de un archivo auxiliar para el Sequential File le provee un espacio auxiliar de memoria para que no tenga que realizar tantos accesos a la memoria secundaria, por ende teorizamos que la cantidad de accesos del Sequential File será menor a las del AVL File y del Extendible Hash.
+
+| Operación | AVL File | Sequential File | Hash File |
+| Inserción | O(logn) + O(b) | O(logn) + O(k) | O(logn) + O(B) |
+| Eliminación | O(logn) + O(b) | O(logn) | O(B) |
+| Búsqueda específica | O(logn) | O(logn) + O(k) | O(B) |
+| Búsqueda por rango | O(logn) | O(logn) + O(k) | - |
+
+- b = balanceo en AVL
+- k = cantidad de enlaces en Sequential
+- B = tamaño de bucket en Hash
 
 ### SQL Parser
 
@@ -208,7 +229,7 @@ Teóricamente, entendemos que las complejidades de las operaciones del AVL File 
 | 50k datos | 514 µs  | 382 µs | 218244 µs |
 | 100k datos | 1411 µs  | 185 µs | 386692 µs |
 
-![image](https://github.com/ValDLaw/Proyecto1BDD2/assets/91209653/57f71381-db47-4fb9-871e-c30473f42824)
+![image](https://github.com/ValDLaw/Proyecto1BDD2/assets/91209653/46ca6e6f-10d9-48e4-a6e6-9df3f5ae9c5a)
 
 | Memoria secundaria | AVL File | Sequential File | Hash File |
 | ------------- | ------------- | ------------- | ------------- |
