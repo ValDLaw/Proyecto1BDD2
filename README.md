@@ -193,15 +193,20 @@ Teóricamente, entendemos que las complejidades de las operaciones del AVL File 
 | Operación | AVL File | Sequential File | Hash File |
 | ------------- | ------------- | ------------- | ------------- |
 | Inserción | O(logn) + O(b) | O(logn) + O(k) | O(logn) + O(B) |
-| Eliminación | O(logn) + O(b) | O(logn) | O(B) |
+| Eliminación | O(logn) + O(b) | O(logn) | O(logn) + O(B) |
 | Búsqueda específica | O(logn) | O(logn) + O(k) | O(B) |
 | Búsqueda por rango | O(logn) | O(logn) + O(k) | - |
 
-- b = balanceo en AVL
+- b = rebalanceo en AVL
 - k = cantidad de enlaces en Sequential
 - B = tamaño de bucket en Hash
 
 ### SQL Parser
+Cuenta con dos ventanas principales: Brazilian e-commerce (autenticación) y Home (registros). En la ventana de registros se muestran las tablas de productos y pagos, además de un recuadro para realizar consultas donde se valida si la consulta realizada es correcta y la envía al código fuente. Ya en el código, se distingue entre las operaciones de inserción, eliminación y búsqueda, clasificado de forma que se invoque a la estructura más adecuada para cada caso:
+- Inserción: Hash File o AVL File
+- Eliminación: AVL File
+- Búsqueda: Sequential File
+Para la interfaz gráfica, hicimos uso de QTCreator con apoyo de un kit SQL respectivo.
 
 
 ## Resultados experimentales
@@ -242,8 +247,16 @@ Teóricamente, entendemos que las complejidades de las operaciones del AVL File 
 
 ### Discusión y análisis
 
+
 ## Pruebas de uso
 ### Interfaz gráfica
-### Funcionalidad (mostrada en clase)
+
+![image](https://github.com/ValDLaw/Proyecto1BDD2/assets/91209653/5eeca3cf-49c0-4797-9d61-e580c6d5bb7e)
+![image](https://github.com/ValDLaw/Proyecto1BDD2/assets/91209653/ee8cd426-f7a9-4c67-9c4b-6888aa304b13)
+
+
+### Funcionalidad (video)
+
+
 
 ¡Muchas gracias!
