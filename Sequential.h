@@ -10,7 +10,7 @@
 #include "Entities/IntPayment.h"
 
 using namespace std;
-const int K = 1000;
+const int K = 100;
 //Dado que rebuild es O(n)
 //Para version final, conviene hacer tests con K = 100, 500, 1000, 2000, 5000, 10 000
 //dado que nuestra data es de alrededor 100 000 registros para Payments y 30 000 para Products
