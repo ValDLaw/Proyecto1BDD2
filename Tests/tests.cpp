@@ -13,6 +13,7 @@ vector<Payment> readPayments(string filename){
 
     while (getline(archivo, linea)) {
         istringstream ss(linea);
+        cout << linea;
         string order_id, payment_type;
         int payment_sequential, payment_installments;
         float payment_value;
@@ -52,9 +53,11 @@ vector<IntPayment> readIntPayments(string filename){
         char ctr[11];
 
         ss >> id;
+        ss.ignore();
         ss >> payment_sequential;
         ss.ignore();
         getline(ss, payment_type, ',');
+
         std::strcpy(ctr, payment_type.c_str());
         ss >> payment_installments;
         ss.ignore();
