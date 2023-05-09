@@ -181,7 +181,7 @@ void insert(Record record);
 ```ruby
 void split(Record& record, int height, int currentNodePosition, TreeNode& currentNode, int currentBucketPosition, Bucketcito& bucket);
 ```
-La función ```split()``` se encarga de crear el nuevo bucket que estará enlazado al anterior, copia el contenido y añade el registro en el nuevo bucket.
+La función ```split()``` se encarga de crear el nuevo bucket que estará enlazado al anterior, copia el contenido y añade el registro en el nuevo bucket. Su complejidad es O(logn).
 
 #### Eliminación
 
@@ -206,6 +206,7 @@ Cuenta con dos ventanas principales: Brazilian e-commerce (autenticación) y Hom
 - Inserción: Hash File o AVL File
 - Eliminación: AVL File
 - Búsqueda: Sequential File
+
 Para la interfaz gráfica, hicimos uso de QTCreator con apoyo de un kit SQL respectivo.
 
 
