@@ -154,7 +154,7 @@ Teóricamente, entendemos que las complejidades de las operaciones del AVL File 
 | 50k datos | 28882 ms  | 309010 ms |
 | 100k datos | 56397 ms  | 685572 ms |
 
-![image](https://user-images.githubusercontent.com/91209653/236223889-e5044da6-a310-403f-bda1-fa1fa992c9b1.png)
+![image](https://user-images.githubusercontent.com/91209653/237008145-eadc2102-b721-4ffa-be45-60d3ac71b226.png)
 
 | Memoria secundaria | AVL File | Sequential File  |
 | ------------- | ------------- | ------------- |
@@ -162,12 +162,29 @@ Teóricamente, entendemos que las complejidades de las operaciones del AVL File 
 | 50k datos | 10232968 accesos  | 275751 accesos |
 | 100k datos | 20939560 accesos  | 425751 accesos |
 
-![image](https://user-images.githubusercontent.com/91209653/236223990-c7d95f9a-9c99-483b-a56c-267949deb712.png)
+![image](https://user-images.githubusercontent.com/91209653/237008180-853b0e17-d8c2-432b-8e65-9f97a9fd2014.png)
 
 #### Búsqueda
+| Tiempos de ejecución | AVL File | Sequential File  |
+| ------------- | ------------- | ------------- |
+| 10k datos  | 577 µs  | 131 µs |
+| 50k datos | 514 µs  | 382 µs |
+| 100k datos | 1411 µs  | 185 µs |
+
+![image](https://user-images.githubusercontent.com/91209653/237008456-bbb0f0cd-870e-48ef-b1f6-e7a30d43dadf.png)
+
+| Memoria secundaria | AVL File | Sequential File  |
+| ------------- | ------------- | ------------- |
+| 10k datos  | 1226466 accesos  | 12 accesos |
+| 50k datos | 7211248 accesos  | 15 accesos |
+| 100k datos | 15304605 accesos  | 14 accesos |
+
+![image](https://user-images.githubusercontent.com/91209653/237008580-94f09214-5cab-46ea-a4eb-594bc7473a44.png)
 
 ### Discusión y análisis
 
 ## Pruebas de uso
 ### Interfaz gráfica
-### Funcionalidad (video)
+### Funcionalidad (mostrada en clase)
+
+¡Muchas gracias!
