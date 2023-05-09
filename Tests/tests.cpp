@@ -29,7 +29,6 @@ vector<Payment> readPayments(string filename){
         ss >> payment_value;
 
         Payment pago(cstr, payment_sequential, ctr, payment_installments, payment_value);
-        pago.showData();
         payments.push_back(pago);
     }
     return payments;
@@ -64,7 +63,6 @@ vector<IntPayment> readIntPayments(string filename){
         ss >> payment_value;
 
         IntPayment pago(id, payment_sequential, ctr, payment_installments, payment_value);
-        pago.showData();
         payments.push_back(pago);
     }
     return payments;

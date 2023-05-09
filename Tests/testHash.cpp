@@ -1,12 +1,12 @@
 #include "../ExtendibleHash/Hashindex.h"
 #include <chrono>
-#include "tests.cpp"
 
-template<typename Record=IntPayment>
+template<typename Record>
 void paymentTest(vector<Record> data, int size){
     cout << "----------------------------------------" << endl;
     cout << "START TEST " << size << endl;
-    HashIndex<Record, char> hashFile("../Hash_data.dat", "../Hash_aux.dat");
+
+    HashIndex<Record, const char *, PaymentHash> hashFile("TestPaymentDATA" + to_string(size) + ".dat", "TestPaymentAux" + to_string(size) + ".dat");
 
     // INSERT
     auto start  = chrono::steady_clock::now();
@@ -20,26 +20,19 @@ void paymentTest(vector<Record> data, int size){
     auto duration = chrono::duration_cast<chrono::milliseconds>(end-start).count();
     cout << "INSERT: " << endl;
     cout << "   EXECUTION TIME: " << duration << " milisegundos" << endl;
-    cout << "   SECONDARY ACCESS: " << "hashFile.getNumberAccess()" << endl;
+    cout << "   SECONDARY ACCESS: " << hashFile.getNumberAccess() << endl;
 
     hashFile.restartNumberAccess();
 
     // SEARCH
     start  = chrono::steady_clock::now();
-    vector<IntPayment> vec = hashFile.search(3041);
+    vector<Payment> vec = hashFile.search("0573b5e23cbd798006520e1d5b4c6714");
     end = chrono::steady_clock::now();
     duration = chrono::duration_cast<chrono::microseconds>(end-start).count();
     cout << "SEARCH: " << endl;
     cout << "   EXECUTION TIME: " << duration << " microsegundos" << endl;
-    cout << "   SECONDARY ACCESS: " << "hashFile.getNumberAccess()" << endl;
+    cout << "   SECONDARY ACCESS: " << hashFile.getNumberAccess() << endl;
 
     cout << "FINISH TEST "<< size << endl;
     cout << "----------------------------------------" << endl;
-}
-
-void tests(){
-    vector<IntPayment> payments = readIntPayments("../Datasets/olist_order_int_payments_dataset.csv");
-    paymentTest(payments, 10000);
-    paymentTest(payments, 50000);
-    paymentTest(payments, 100000);
 }
