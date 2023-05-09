@@ -191,6 +191,7 @@ La función ```split()``` se encarga de crear el nuevo bucket que estará enlaza
 Teóricamente, entendemos que las complejidades de las operaciones del AVL File son menores a las del Sequential File. Por ende, es posible plantear como hipótesis que los tiempos de ejecución de las operaciones de búsqueda en el AVL serán mucho menores. Por otro lado, el Extendible Hash tiene una menor complejidad en la operación de inserción, pero mayor en la operación de búsqueda (su peor caso depende del tamaño del bucket). No obstante, el uso de un archivo auxiliar para el Sequential File le provee un espacio auxiliar de memoria para que no tenga que realizar tantos accesos a la memoria secundaria, por ende teorizamos que la cantidad de accesos del Sequential File será menor a las del AVL File y del Extendible Hash.
 
 | Operación | AVL File | Sequential File | Hash File |
+| ------------- | ------------- | ------------- | ------------- |
 | Inserción | O(logn) + O(b) | O(logn) + O(k) | O(logn) + O(B) |
 | Eliminación | O(logn) + O(b) | O(logn) | O(B) |
 | Búsqueda específica | O(logn) | O(logn) + O(k) | O(B) |
