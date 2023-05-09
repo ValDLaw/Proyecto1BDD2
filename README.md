@@ -16,11 +16,11 @@ Así como en otros sectores, las startups enfocadas en el comercio electrónico 
 
 ### Objetivo del proyecto
 
-El objetivo del presente proyecto consiste en estructurar y programar un gestor funcional de bases de datos con GUI implementada, a fin de administrar los datasets de pagos y productos de Olist. El gestor contará con operaciones de inserción, eliminación y búsqueda (específica y por rango), accediendo a las estructuras del tipo **AVL File** y **Sequential File** según sea más óptimo.
+El objetivo del presente proyecto consiste en estructurar y programar un gestor funcional de bases de datos con GUI implementada, a fin de administrar los datasets de pagos y productos de Olist. El gestor contará con operaciones de inserción, eliminación y búsqueda (específica y por rango), accediendo a las estructuras del tipo **AVL File**, **Sequential File** y **Extendible Hash** según sea más óptimo.
 
 ### Descripción del dominio de datos a utilizar
 
-El dominio de datos que hemos escogido para nuestro proyecto consiste en dos archivos con registros de Olist: uno que enlista los productos en venta y otro que almacena información sobre los pagos procesados. Tal dataset fue de nuestra elección por la cantidad de registros (superior a 10k) y porque tiene una aplicación interesante y realista en relación al mercado del comercio electrónico.
+El dominio de datos que hemos escogido para nuestro proyecto consiste en dos archivos con registros de Olist: uno que enlista los productos en venta y otro que almacena información sobre los pagos procesados. Tal dataset fue de nuestra elección por la cantidad de registros (superior a 100k) y porque tiene una aplicación interesante y realista en relación al mercado del comercio electrónico.
 
 ### Resultados que se esperan obtener
 
@@ -139,6 +139,43 @@ vector<Record> search(T key);
 - **Por rango:** Una opción es recorrer el Sequential File por mitades hasta ambos valores, máximo y mínimo.  Se insertan todos los registros entre ambos valores en un vector de Records. La complejidad de este método es O(logn) + O(k), donde k es el tamaño del archivo auxiliar.
 Primero recorremos el datafile utilizando binary search. En caso se encuentre el archivo, se regresa, ya que el key es único. Si no, se procede a buscar en el auxfile con búsqueda lineal. Si se encuentra, se regresa. Si no, al final de revisar todo el archivo se regresa un vector vacío.
 
+### Extendible Hash
+Por último, el Extendible Hash fue implementado y estructurado por tres clases: 
+```Bucket.h``` para almacenar los registros en buckets, ```SMH.h``` para las funcionalidades del Secondary Memory Helper (acceso a registros y modificación del datafile) y ```Hashindex.h``` que usa las otras dos para inicalizar el Hash y realizar las operaciones de inserción, eliminación y búsqueda.
+
+```ruby
+template <class Record, class Key>
+class Bucket{
+    Record records[4];
+    int nextBucket;
+    int count;
+    int D = 4;
+    int nextDeleted;
+}
+
+template<class Data>
+struct SMH {
+    string filename;
+}
+
+template <class Record, class Key, class Hash = hash<Key> >
+class HashIndex{
+    int MaxHeight;
+    typedef Bucket<Record, Key> Bucketcito;
+    SMH<TreeNode> IndexData;
+    typedef bitset<50> BitsetData;
+    SMH<Bucketcito> BucketData;
+    Hash myHash;
+    int accessMemSec = 0;
+}
+```
+
+#### Inserción
+
+#### Eliminación
+
+#### Búsqueda
+
 ### Análisis comparativo teórico
 Teóricamente, entendemos que las complejidades de las operaciones del AVL File son menores a las del Sequential File. Por ende, es posible plantear como hipótesis que los tiempos de ejecución de las operaciones de búsqueda en el AVL serán mucho menores. No obstante, el uso de un archivo auxiliar para el Sequential File le provee un espacio auxiliar de memoria para que no tenga que realizar tantos accesos a la memoria secundaria, por ende teorizamos que la cantidad de accesos del Sequential File será menor a la del AVL File.
 
@@ -148,38 +185,38 @@ Teóricamente, entendemos que las complejidades de las operaciones del AVL File 
 ## Resultados experimentales
 ### Cuadros comparativos
 #### Inserción
-| Tiempos de ejecución | AVL File | Sequential File  |
-| ------------- | ------------- | ------------- |
-| 10k datos  | 4358 ms  | 56172 ms |
-| 50k datos | 28882 ms  | 309010 ms |
-| 100k datos | 56397 ms  | 685572 ms |
+| Tiempos de ejecución | AVL File | Sequential File | Hash File |
+| ------------- | ------------- | ------------- | ------------- |
+| 10k datos  | 4358 ms  | 56172 ms | 69487 ms |
+| 50k datos | 28882 ms  | 309010 ms | 277877 ms |
+| 100k datos | 56397 ms  | 685572 ms | 341957 ms |
 
-![image](https://user-images.githubusercontent.com/91209653/237008145-eadc2102-b721-4ffa-be45-60d3ac71b226.png)
+![image](https://github.com/ValDLaw/Proyecto1BDD2/assets/91209653/1e3f3416-7c55-4e3a-bdc4-75025ee77df5)
 
-| Memoria secundaria | AVL File | Sequential File  |
-| ------------- | ------------- | ------------- |
-| 10k datos  | 1525157 accesos  | 155751 accesos |
-| 50k datos | 10232968 accesos  | 275751 accesos |
-| 100k datos | 20939560 accesos  | 425751 accesos |
+| Memoria secundaria | AVL File | Sequential File | Hash File |
+| ------------- | ------------- | ------------- | ------------- |
+| 10k datos  | 1525157 accesos  | 155751 accesos | 69970 accesos |
+| 50k datos | 10232968 accesos  | 275751 accesos | 349970 accesos |
+| 100k datos | 20939560 accesos  | 425751 accesos | 699970 accesos |
 
-![image](https://user-images.githubusercontent.com/91209653/237008180-853b0e17-d8c2-432b-8e65-9f97a9fd2014.png)
+![image](https://github.com/ValDLaw/Proyecto1BDD2/assets/91209653/2071cc6a-a35d-424a-8a48-02ba3b5198a3)
 
 #### Búsqueda
-| Tiempos de ejecución | AVL File | Sequential File  |
-| ------------- | ------------- | ------------- |
-| 10k datos  | 577 µs  | 131 µs |
-| 50k datos | 514 µs  | 382 µs |
-| 100k datos | 1411 µs  | 185 µs |
+| Tiempos de ejecución | AVL File | Sequential File | Hash File |
+| ------------- | ------------- | ------------- | ------------- |
+| 10k datos  | 577 µs  | 131 µs | 74058 µs |
+| 50k datos | 514 µs  | 382 µs | 218244 µs |
+| 100k datos | 1411 µs  | 185 µs | 386692 µs |
 
-![image](https://user-images.githubusercontent.com/91209653/237008456-bbb0f0cd-870e-48ef-b1f6-e7a30d43dadf.png)
+![image](https://github.com/ValDLaw/Proyecto1BDD2/assets/91209653/57f71381-db47-4fb9-871e-c30473f42824)
 
-| Memoria secundaria | AVL File | Sequential File  |
-| ------------- | ------------- | ------------- |
-| 10k datos  | 1226466 accesos  | 12 accesos |
-| 50k datos | 7211248 accesos  | 15 accesos |
-| 100k datos | 15304605 accesos  | 14 accesos |
+| Memoria secundaria | AVL File | Sequential File | Hash File |
+| ------------- | ------------- | ------------- | ------------- |
+| 10k datos  | 1226466 accesos  | 12 accesos | 324 accesos |
+| 50k datos | 7211248 accesos  | 15 accesos | 1578 accesos |
+| 100k datos | 15304605 accesos  | 14 accesos | 3148 accesos |
 
-![image](https://user-images.githubusercontent.com/91209653/237008580-94f09214-5cab-46ea-a4eb-594bc7473a44.png)
+![image](https://github.com/ValDLaw/Proyecto1BDD2/assets/91209653/757b1a7e-450f-495a-b425-f78b0aa7d1b7)
 
 ### Discusión y análisis
 
