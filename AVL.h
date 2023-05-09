@@ -397,6 +397,9 @@ public:
         return numberAccesMemory;
 
     }
+    void restartNumberAccess(){
+        numberAccesMemory = 0;
+    }
 };
 
 #endif //PROYECTO1BDD2_AVL_H
