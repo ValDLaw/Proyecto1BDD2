@@ -216,7 +216,7 @@ Teóricamente, entendemos que las complejidades de las operaciones del AVL File 
 | Búsqueda por rango | O(logn) | O(logn) + O(k) | - |
 
 - b = rebalanceo en AVL
-- k = cantidad de enlaces en Sequential
+- k = tamaño de archivo auxiliar en Sequential
 - B = tamaño de bucket en Hash
 
 ### SQL Parser
