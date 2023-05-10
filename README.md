@@ -274,6 +274,6 @@ El desarrollo de las operaciones en cada una de las estructuras difirió en cier
 ![image](https://github.com/ValDLaw/Proyecto1BDD2/assets/91209653/7d9b2177-3102-439d-b9d8-0711bb327f12)
 
 ### Funcionalidad (video)
-![image](https://github.com/ValDLaw/Proyecto1BDD2/assets/91209653/46188a51-5756-4a56-89fb-68733faec988)
+![image](https://drive.google.com/drive/folders/18U85sToyU2AuTGPAbGuZ3Tm44WlQZ5rW?usp=sharing)
 
 ¡Muchas gracias!
