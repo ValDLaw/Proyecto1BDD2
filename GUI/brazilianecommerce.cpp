@@ -8,7 +8,7 @@ BrazilianECommerce::BrazilianECommerce(QWidget *parent)
     , ui(new Ui::BrazilianECommerce)
 {
     ui->setupUi(this);
-    QPixmap pix("images/brazil-e-commerce.png"); // cambiar segun la ubicacion de la imagen
+    QPixmap pix("/Users/ValDLaw/Documents/GitHub/Proyecto1BDD2/images/brazil-e-commerce.png"); // cambiar segun la ubicacion de la imagen
     ui->ecommercebrazillogo->setPixmap(pix.scaled(160,160,Qt::KeepAspectRatio));
 }
 
