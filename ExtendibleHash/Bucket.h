@@ -4,63 +4,54 @@
 
 #ifndef PROJECTBD_BUCKET_H
 #define PROJECTBD_BUCKET_H
-
 #include <algorithm>
 #include <vector>
 #include <iostream>
 using namespace std;
 
-const int BUCKETSIZE = 3;
-
-template <class Register, class Key>
+template <class Record, class Key>
 class Bucket{
 private:
-    Register records[BUCKETSIZE];
+    Record records[4];
     int nextBucket;
     int count;
+    int D = 4;
 public:
-    int nextDel;
-    Bucket(): nextBucket(-1), nextDel(0), count(0) {}
-    explicit Bucket(int nextBucket): nextBucket(nextBucket), nextDel(0), count(0) {}
+    int nextDeleted;
+    Bucket(): nextBucket(-1), nextDeleted(0), count(0) {}
 
     bool isFull(){
-        return count == BUCKETSIZE;
+        return count == D;
     }
 
     void setNextBucket(int nextPosition){
-        this->nextBucket = nextPosition;
+        nextBucket = nextPosition;
     }
 
     int getNextBucket() const {
         return nextBucket;
     }
 
-    void add(Register record){
-        if(count < BUCKETSIZE) {
+    void add(Record record){
+        if(count < D) {
             records[count] = record;
             ++count;
-        }else throw out_of_range("BUCKET LLENO");
+        }
     }
 
     void sortBucket(){
         sort(records, records+count, compareRecords);
     }
 
-    static bool compareRecords(Register& r1, Register& r2){
-        return r1 < r2;
-    }
-    void printAll(){
-        cout << "******************" << endl;
-        for(int i = 0; i < count; ++i){
-            records[i].showData();
-            cout << "******************" << endl;
-        }
-    }
-    vector<Register> getRecords(){
-        return vector<Register>(records, records+count);
+    static bool compareRecords(Record& a, Record& b){
+        return a.getID() < b.getID();
     }
 
-    void setRecords(vector<Register> newRecords){
+    vector<Record> getRecords(){
+        return vector<Record>(records, records+count);
+    }
+
+    void setRecords(vector<Record> newRecords){
         count = 0;
         for(auto& record : newRecords){
             records[count] = record;
@@ -72,8 +63,8 @@ public:
         return count == 0;
     }
 
-    vector<Register> getAllDifferentRecords(Key key){
-        vector<Register> output;
+    vector<Record> getAllDifferentRecords(Key key){
+        vector<Record> output;
         for(auto& record : this->getRecords()){
             if(!record.equalToKey(key))
                 output.push_back(record);
@@ -81,5 +72,6 @@ public:
         return output;
     }
 };
+
 
 #endif //PROJECTBD_BUCKET_H

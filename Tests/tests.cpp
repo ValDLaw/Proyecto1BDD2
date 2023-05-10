@@ -52,10 +52,12 @@ vector<IntPayment> readIntPayments(string filename){
         char ctr[11];
 
         ss >> id;
+        ss.ignore();
         ss >> payment_sequential;
         ss.ignore();
         getline(ss, payment_type, ',');
-        std::strcpy(ctr, payment_type.c_str());
+        std::strncpy(ctr, payment_type.c_str(), sizeof(ctr) - 1);
+        ctr[sizeof(ctr) - 1] = '\0'; // ensure null-termination
         ss >> payment_installments;
         ss.ignore();
         ss >> payment_value;
@@ -65,3 +67,4 @@ vector<IntPayment> readIntPayments(string filename){
     }
     return payments;
 }
+
