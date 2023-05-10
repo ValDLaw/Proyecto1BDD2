@@ -174,7 +174,7 @@ class HashIndex{
 ```ruby
 void insert(Record record);
 ```
-- Se lee la llave y la codifica usando la función hash para obtener el valor del módulo.
+- Se lee la llave y se codifica usando la función hash para obtener el valor del módulo.
 - Luego de ubicarse en la posición del array, se lee el registro y se verifica si hay espacio o no al final del bucket.
 - Si hay espacio, se añade el registro al final del bucket.
 - Si no hay espacio, se llama a la función ```split()```:
@@ -184,9 +184,27 @@ void split(Record& record, int height, int currentNodePosition, TreeNode& curren
 La función ```split()``` se encarga de crear el nuevo bucket que estará enlazado al anterior, copia el contenido y añade el registro en el nuevo bucket. Su complejidad es O(logn).
 
 #### Eliminación
+```ruby
+void remove(Key key);
+void removeUtil(int nodePosition, Key key, BitsetData hashKey, int& height);
+```
+- Se lee la llave y se busca su posición dentro de los buckets.
+- Se llama a la función privada ```removeUtil()```.
+- Si nos encontramos en un bucket hoja y es el último registro, se elimina el registro y el bucket. Caso contrario, continúa la iteración.
+- Sino, borramos el registro del bucket. Para borrar los registros no solo del Hash sino de cada bucket, se llama a la función recursiva ```void deleteRecordInBucket(Key key, TreeNode &currentNode, int nodePosition)```:
+```ruby
+void deleteRecordInBucket(Key key, TreeNode &currentNode, int nodePosition)
+```
 
 #### Búsqueda
-
+```ruby
+vector<Record> search(Key searchKey)
+```
+- Se lee la llave y se codifica usando la función hash para obtener el valor del módulo.
+- Se itera dentro del bucket correspondiente hasta que la posición se encuentre.
+- En caso no se encuentre el registro, la posición valdrá -1 (fin del bucket).
+- Iteramos en cada bucket en cada bucket encadenado a los punteros hasta encontrar el elemento y devolverlo
+    
 ### Análisis comparativo teórico
 Teóricamente, entendemos que las complejidades de las operaciones del AVL File son menores a las del Sequential File. Por ende, es posible plantear como hipótesis que los tiempos de ejecución de las operaciones de búsqueda en el AVL serán mucho menores. Por otro lado, el Extendible Hash tiene una menor complejidad en la operación de inserción, pero mayor en la operación de búsqueda (su peor caso depende del tamaño del bucket). No obstante, el uso de un archivo auxiliar para el Sequential File le provee un espacio auxiliar de memoria para que no tenga que realizar tantos accesos a la memoria secundaria, por ende teorizamos que la cantidad de accesos del Sequential File será menor a las del AVL File y del Extendible Hash.
 
@@ -247,17 +265,15 @@ Para la interfaz gráfica, hicimos uso de QTCreator con apoyo de un kit SQL resp
 ![image](https://github.com/ValDLaw/Proyecto1BDD2/assets/91209653/757b1a7e-450f-495a-b425-f78b0aa7d1b7)
 
 ### Discusión y análisis
-
+El desarrollo de las operaciones en cada una de las estructuras difirió en cierta medida de lo teórico, pues se realizó una implementación propia del AVL File, Sequential File y Extendible Hash, ya que hay varias formas de implementar una misma estructura y variantes de cada tipo de archivo. Adicionalmente, se ha comprobado que la inicialización de la interfaz para la visualización de registros en tablas toma un tiempo adicional, y queda en cuestión si realizar tal incialización de manera individual en cada llamada a las operaciones o en conjunto desde la primera pantalla del programa, dependiendo del sistema de base de datos administrado y de los requerimientos de la empresa. Finalmente, se compararon las estructuras de datos entre ellas y sus complejidades para cada operación, evaluando su efectividad en un escenario de la vida real como es el del mercado de comercio electrónico.
 
 ## Pruebas de uso
 ### Interfaz gráfica
 
 ![image](https://github.com/ValDLaw/Proyecto1BDD2/assets/91209653/5eeca3cf-49c0-4797-9d61-e580c6d5bb7e)
-![image](https://github.com/ValDLaw/Proyecto1BDD2/assets/91209653/ee8cd426-f7a9-4c67-9c4b-6888aa304b13)
-
+![image](https://github.com/ValDLaw/Proyecto1BDD2/assets/91209653/7d9b2177-3102-439d-b9d8-0711bb327f12)
 
 ### Funcionalidad (video)
-
-
+![image](https://github.com/ValDLaw/Proyecto1BDD2/assets/91209653/46188a51-5756-4a56-89fb-68733faec988)
 
 ¡Muchas gracias!
