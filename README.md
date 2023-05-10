@@ -193,7 +193,7 @@ void removeUtil(int nodePosition, Key key, BitsetData hashKey, int& height);
 - Si nos encontramos en un bucket hoja y es el último registro, se elimina el registro y el bucket. Caso contrario, continúa la iteración.
 - Sino, borramos el registro del bucket. Para borrar los registros no solo del Hash sino de cada bucket, se llama a la función recursiva ```void deleteRecordInBucket(Key key, TreeNode &currentNode, int nodePosition)```:
 ```ruby
-void deleteRecordInBucket(Key key, TreeNode &currentNode, int nodePosition)
+void deleteRecordInBucket(Key key, TreeNode &currentNode, int nodePosition);
 ```
 
 #### Búsqueda
@@ -216,7 +216,7 @@ Teóricamente, entendemos que las complejidades de las operaciones del AVL File 
 | Búsqueda por rango | O(logn) | O(logn) + O(k) | - |
 
 - b = rebalanceo en AVL
-- k = cantidad de enlaces en Sequential
+- k = tamaño de archivo auxiliar en Sequential
 - B = tamaño de bucket en Hash
 
 ### SQL Parser
